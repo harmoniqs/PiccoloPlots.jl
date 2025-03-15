@@ -1,6 +1,6 @@
 <!--```@raw html-->
 <div align="center">
-  <a href="https://github.com/kestrelquantum/Piccolo.jl">
+  <a href="https://github.com/harmoniqs/Piccolo.jl">
     <img src="assets/logo.svg" alt="logo" width="25%"/>
   </a> 
 </div>
@@ -11,21 +11,21 @@
       <td align="center">
         <b>Documentation</b>
         <br>
-        <a href="https://kestrelquantum.github.io/PiccoloPlots.jl/stable/">
+        <a href="https://docs.harmoniqs.co/PiccoloPlots.jl/stable/">
           <img src="https://img.shields.io/badge/docs-stable-blue.svg" alt="Stable"/>
         </a>
-        <a href="https://kestrelquantum.github.io/PiccoloPlots.jl/dev/">
+        <a href="https://docs.harmoniqs.co/PiccoloPlots.jl/dev/">
           <img src="https://img.shields.io/badge/docs-dev-blue.svg" alt="Dev"/>
         </a>
       </td>
       <td align="center">
         <b>Build Status</b>
         <br>
-        <a href="https://github.com/kestrelquantum/PiccoloPlots.jl/actions/workflows/CI.yml?query=branch%3Amain">
-          <img src="https://github.com/kestrelquantum/PiccoloPlots.jl/actions/workflows/CI.yml/badge.svg?branch=main" alt="Build Status"/>
+        <a href="https://github.com/harmoniqs/PiccoloPlots.jl/actions/workflows/CI.yml?query=branch%3Amain">
+          <img src="https://github.com/harmoniqs/PiccoloPlots.jl/actions/workflows/CI.yml/badge.svg?branch=main" alt="Build Status"/>
         </a>
-        <a href="https://codecov.io/gh/kestrelquantum/PiccoloPlots.jl">
-          <img src="https://codecov.io/gh/kestrelquantum/PiccoloPlots.jl/branch/main/graph/badge.svg" alt="Coverage"/>
+        <a href="https://codecov.io/gh/harmoniqs/PiccoloPlots.jl">
+          <img src="https://codecov.io/gh/harmoniqs/PiccoloPlots.jl/branch/main/graph/badge.svg" alt="Coverage"/>
         </a>
       </td>
       <td align="center">
@@ -54,7 +54,7 @@
 
 # PiccoloPlots.jl
 
-**PiccoloPlots.jl** is designed to hold plotting recipes for the Piccolo.jl package. It utilzes the `plot` method of the [`NamedTrajectories.jl`](https://github.com/kestrelquantum/NamedTrajectories.jl).
+**PiccoloPlots.jl** is designed to hold plotting recipes for the Piccolo.jl package. It utilzes the `plot` method of the [`NamedTrajectories.jl`](https://github.com/harmoniqs/NamedTrajectories.jl).
 
 ### Installation
 PiccoloPlots.jl can be installed using the Julia package manager. From the Julia REPL, type `]` to enter the Pkg REPL mode and run:
