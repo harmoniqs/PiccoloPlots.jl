@@ -24,7 +24,7 @@ pages = [
 
 format = Documenter.HTML(;
     prettyurls=get(ENV, "CI", "false") == "true",
-    canonical="https://aarontrowbridge.github.io/NamedTrajectories.jl",
+    canonical="https://docs.harmoniqs.co/NamedTrajectories.jl",
     edit_link="main",
     assets=String[],
     mathengine = MathJax3(Dict(
@@ -72,6 +72,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/kestrelquantum/PiccoloPlots.jl.git",
+    repo="github.com/harmoniqs/PiccoloPlots.jl.git",
     devbranch="main",
 )
