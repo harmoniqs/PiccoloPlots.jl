@@ -11,10 +11,10 @@
       <td align="center">
         <b>Documentation</b>
         <br>
-        <a href="https://docs.harmoniqs.co/PiccoloPlots.jl/stable/">
+        <a href="https://docs.harmoniqs.co/PiccoloPlots/stable/">
           <img src="https://img.shields.io/badge/docs-stable-blue.svg" alt="Stable"/>
         </a>
-        <a href="https://docs.harmoniqs.co/PiccoloPlots.jl/dev/">
+        <a href="https://docs.harmoniqs.co/PiccoloPlots/dev/">
           <img src="https://img.shields.io/badge/docs-dev-blue.svg" alt="Dev"/>
         </a>
       </td>
