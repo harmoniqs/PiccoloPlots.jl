@@ -7,7 +7,6 @@ using LaTeXStrings
 # only need MakieCore for plot name
 using MakieCore
 using LinearAlgebra
-using GLMakie
 using GeometryBasics
 using NamedTrajectories
 using PiccoloQuantumObjects
@@ -149,7 +148,7 @@ end
 end
 
 @testitem "Plot on bloch" begin
-    using CairoMakie
+    using GLMakie
     using NamedTrajectories
     using PiccoloQuantumObjects
 
@@ -159,8 +158,7 @@ end
 
     traj = NamedTrajectory((ψ̃ = ψs_mat, ); timestep=0.1)
 
-    fig = plot_blochy(traj)
-    save("../assets/bloch_plot_w_slider.png", fig)
+    fig = plot_bloch(traj)
     @test fig isa Figure
 end
 end
