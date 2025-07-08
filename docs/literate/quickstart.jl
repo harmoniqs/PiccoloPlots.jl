@@ -28,10 +28,11 @@ Us[1]
 traj = NamedTrajectory(
     (
         Ũ⃗ = hcat(operator_to_iso_vec.(Us)...), # here we store the isomorphisms
-        a = A
+        a = A,
+        Δt = ts
     );
     controls = :a,
-    timestep = Δt
+    timestep = :Δt
 )
 
 # Finally we will plot the populations
