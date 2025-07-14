@@ -91,7 +91,7 @@ A tuple `(fig, lscene, states)` where:
 - `lscene`: The 3D scene containing the Bloch sphere.
 - `states`: The list of `QuantumObject`s plotted.
 """
-function plot_bloch_traj end
+function plot_bloch end
 
 """
     plot_wigner(
