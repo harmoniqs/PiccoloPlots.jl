@@ -2,10 +2,6 @@ module QuantumObjectPlots
 
 export plot_unitary_populations
 export plot_bloch
-export plot_first_bloch
-export plot_last_bloch
-export plot_bloch_traj
-export animate_bloch_old
 export animate_bloch
 export animate_name
 export plot_wigner
@@ -98,38 +94,6 @@ A tuple `(fig, lscene, states)` where:
 function plot_bloch_traj end
 
 """
-    plot_first_bloch(traj::NamedTrajectory; state_name::Symbol=:ψ̃, kwargs...)
-
-Plot the first quantum state in a trajectory on the Bloch sphere.
-
-# Arguments
-- `traj::NamedTrajectory`: The trajectory containing quantum states.
-- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
-
-# Returns
-A tuple `(fig, lscene)` where:
-- `fig`: The Makie `Figure` object.
-- `lscene`: The 3D scene containing the Bloch sphere.
-"""
-function plot_first_bloch end
-
-"""
-    plot_last_bloch(traj::NamedTrajectory; state_name::Symbol=:ψ̃, kwargs...)
-
-Plot the last quantum state in a trajectory on the Bloch sphere.
-
-# Arguments
-- `traj::NamedTrajectory`: The trajectory containing quantum states.
-- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
-
-# Returns
-A tuple `(fig, lscene)` where:
-- `fig`: The Makie `Figure` object.
-- `lscene`: The 3D scene containing the Bloch sphere.
-"""
-function plot_last_bloch end
-
-"""
     plot_wigner(
         traj::NamedTrajectory;
         state_name::Symbol=:ψ̃,
@@ -175,24 +139,6 @@ Animate the evolution of a quantum trajectory on the Bloch sphere without using 
 
 # Returns
 The Makie `Figure` object displaying the animation.
-"""
-function animate_bloch_old end
-
-"""
-    animate_bloch(traj::NamedTrajectory; state_name::Symbol=:ψ̃, fps::Int=30)
-
-Animate the evolution of a quantum trajectory on the Bloch sphere.
-
-# Arguments
-- `traj::NamedTrajectory`: The trajectory containing quantum states.
-- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
-- `fps::Int`: Frames per second for the animation. Default is `30`.
-
-# Returns
-A tuple `(fig, lscene, states)` where:
-- `fig`: The Makie `Figure` object.
-- `lscene`: The 3D scene containing the Bloch sphere.
-- `states`: The list of quantum states.
 """
 function animate_bloch end
 

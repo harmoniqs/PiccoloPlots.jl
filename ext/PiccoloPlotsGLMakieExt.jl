@@ -1,5 +1,4 @@
 module PiccoloPlotsGLMakieExt
-# might not need all of these, som eare left over from debugging
 using PiccoloPlots
 using QuantumToolbox
 using Makie
@@ -9,54 +8,8 @@ using PiccoloQuantumObjects
 using TestItemRunner
 using TestItems
 using GLMakie
-using Colors # later remove from this and from dependenci
+using Colors
 
-
-function PiccoloPlots.animate_bloch_old(
-    traj::NamedTrajectory;
-    state_name::Symbol=:ψ̃,
-    fps=30,
-)
-
-    iso_vecs = eachcol(traj[state_name])
-    kets = iso_to_ket.(iso_vecs)
-    bloch_vectors = ket_to_bloch.(kets)
-
-    colors = fill(:blue, length(bloch_vectors))
-
-    θ = LinRange(0, π, 50)
-    ϕ = LinRange(0, 2π, 50)
-    x = [sin(t) * cos(p) for t in θ, p in ϕ]
-    y = [sin(t) * sin(p) for t in θ, p in ϕ]
-    z = [cos(t) for t in θ, p in ϕ]
-
-    fig = Figure(size=(800, 800))
-    ax = Axis3(fig[1, 1], aspect=:equal, title="Bloch Sphere Animation")
-    wireframe!(ax, x, y, z, color=:lightblue, transparency=true)
-
-    bx = getindex.(bloch_vectors, 1)
-    by = getindex.(bloch_vectors, 2)
-    bz = getindex.(bloch_vectors, 3)
-
-    lines!(ax, bx, by, bz, linewidth=3, color=colors)
-
-    index = Observable(1)
-    moving_point = @lift(Point3f(bx[$index], by[$index], bz[$index]))
-    scatter!(ax, moving_point, markersize=15, color=:red)
-
-    display(fig)
-
-    @async begin
-        while isopen(fig.scene)
-            for i in 1:length(bloch_vectors)
-                index[] = i
-                sleep(1 / fps)
-            end
-        end
-    end
-
-    return fig
-end
 
 function PiccoloPlots.animate_bloch(
     traj::NamedTrajectory;
@@ -64,7 +17,7 @@ function PiccoloPlots.animate_bloch(
     fps::Int=30,
 )
 
-    fig, lscene, states = PiccoloPlots.plot_bloch_traj(
+    fig, lscene, states = PiccoloPlots.plot_bloch(
         Val(:Makie), traj; state_name=state_name
     )
     bloch_vectors = QuantumToolbox._state_to_bloch.(states)
@@ -162,31 +115,6 @@ function PiccoloPlots.animate_wigner(
     end
 
     return fig, ax, states
-end
-
-@testitem "Animate Bloch sphere (old) with quarter-turn trajectory" begin
-    # this one having a hard time finding ket_to_bloch
-    using PiccoloPlots
-    using QuantumToolbox
-    using NamedTrajectories
-    using PiccoloQuantumObjects
-    using GLMakie
-
-    GLMakie.activate!()
-
-    T = 20
-    ts = range(0, π/2; length=T)
-    kets = [QuantumObject(cos(θ)*[1.0, 0.0] + sin(θ)*[0.0, 1.0]) for θ in ts]
-    iso_kets = ket_to_iso.(ψ.data for ψ in kets)
-
-    traj = NamedTrajectory((
-        ψ̃ = hcat(iso_kets...),
-        Δt = fill(1.0, T),
-    ))
-
-    fig = PiccoloPlots.animate_bloch_old(traj; fps=10)
-
-    @test fig isa Figure
 end
 
 

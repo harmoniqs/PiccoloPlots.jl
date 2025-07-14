@@ -10,29 +10,7 @@ using TestItems
 
 
 
-function PiccoloPlots.plot_first_bloch(
-    traj::NamedTrajectory{};
-    state_name::Symbol = :ψ̃,
-    kwargs...
-)
-    iso_vec = traj[state_name][:, 1]
-    ket = iso_to_ket(iso_vec)
-    state = QuantumObject(ket)
-    return QuantumToolbox.plot_bloch(Val(:Makie), state; kwargs...)
-end
-
-function PiccoloPlots.plot_last_bloch(
-    traj::NamedTrajectory{};
-    state_name::Symbol = :ψ̃,
-    kwargs...
-)
-    iso_vec = traj[state_name][:, end]
-    ket = iso_to_ket(iso_vec)
-    state = QuantumObject(ket)
-    return QuantumToolbox.plot_bloch(Val(:Makie), state; kwargs...)
-end
-
-function PiccoloPlots.plot_bloch_traj(
+function PiccoloPlots.plot_bloch(
     ::Val{:Makie},
     traj::NamedTrajectory{};
     state_name::Symbol = :ψ̃,
@@ -51,10 +29,10 @@ function PiccoloPlots.plot_bloch_traj(
     return fig, lscene, states
 end 
 
-function PiccoloPlots.plot_bloch_traj(
+function PiccoloPlots.plot_bloch(
     traj::NamedTrajectory; kwargs...
 )
-    PiccoloPlots.plot_bloch_traj(Val(:Makie), traj; kwargs...)
+    PiccoloPlots.plot_bloch(Val(:Makie), traj; kwargs...)
 end
 
 function PiccoloPlots.plot_wigner(
@@ -86,34 +64,7 @@ end
 
 #============================================================================#
 
-@testitem "plot_bloch_first works with 2-state trajectory" begin
-    using CairoMakie
-    using QuantumToolbox
-    using NamedTrajectories
-    using PiccoloQuantumObjects
-    using PiccoloPlots
-
-    CairoMakie.activate!()
-    # |0⟩ = [1, 0]
-    x = ComplexF64[1.0; 0.0]
-    # |+⟩ = (|0⟩ + |1⟩)/√2
-    y = ComplexF64[1.0; 1.0] / √2
-
-    traj = NamedTrajectory((
-        ψ̃ = hcat(ket_to_iso(x), ket_to_iso(y)),
-        Δt = [1.0; 1.0],
-    ))
-
-    fig1, ax1 = plot_first_bloch(traj)
-    fig2, ax2 = plot_last_bloch(traj)
-    @test fig1 isa Figure
-    @test ax1 isa LScene
-    @test fig2 isa Figure
-    @test ax2 isa LScene
-    @test fig1 != fig2
-end
-
-@testitem "Test plot_bloch_traj for Bloch sphere trajectory" begin
+@testitem "Test plot_bloch for Bloch sphere trajectory" begin
     using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
@@ -132,13 +83,13 @@ end
     traj = NamedTrajectory(comps)
     println(traj)
 
-    fig, lscene, states = PiccoloPlots.plot_bloch_traj(Val(:Makie), traj)
+    fig, lscene, states = PiccoloPlots.plot_bloch(Val(:Makie), traj)
 
     @test fig isa Figure
     @test lscene isa LScene
 end
 
-@testitem "plot_bloch_traj shows expected curved Bloch path" begin
+@testitem "plot_bloch shows expected curved Bloch path" begin
     using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
@@ -163,13 +114,13 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene = plot_bloch_traj(Val(:Makie), traj)
+    fig, lscene = plot_bloch(Val(:Makie), traj)
 
     @test isa(fig, Figure)
     @test isa(lscene, LScene)
 end
 
-@testitem "plot_bloch_traj with problem-constructed trajectory" begin
+@testitem "plot_bloch with problem-constructed trajectory" begin
     using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
@@ -198,7 +149,7 @@ end
 
     # traj = NamedTrajectory(comps)
     traj = prob.trajectory
-    fig, lscene = plot_bloch_traj(Val(:Makie), traj, state_name=:ψ̃1)
+    fig, lscene = plot_bloch(Val(:Makie), traj, state_name=:ψ̃1)
     println("I am getting here")
 
 
