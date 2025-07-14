@@ -11,7 +11,7 @@ using LaTeXStrings
 # only need MakieCore for plot name
 using MakieCore
 using LinearAlgebra
-using GeometryBasics
+# using GeometryBasics
 using NamedTrajectories
 using PiccoloQuantumObjects
 using TestItemRunner
