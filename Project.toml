@@ -36,15 +36,10 @@ LaTeXStrings = "1.4"
 LinearAlgebra = "1.11.0"
 Makie = "0.22.10"
 MakieCore = "0.9"
-<<<<<<< HEAD
-NamedTrajectories = "0.5"
-PiccoloQuantumObjects = "0.6"
-=======
 NamedTrajectories = "0.4"
 PiccoloQuantumObjects = "0.6"
 QuantumCollocation = "0.8.0"
 QuantumToolbox = "0.32"
->>>>>>> plot-bloch-trajectory
 Random = "1.10, 1.11"
 Reexport = "1.2"
 TestItemRunner = "1.1"
