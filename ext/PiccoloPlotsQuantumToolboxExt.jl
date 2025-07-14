@@ -201,7 +201,7 @@ end
     yvec = xvec .+ (abs(imag(α1)) - abs(imag(α2))) / 2
 
     fig = Figure(size = (250, 250), figure_padding = 0)
-    fig, ax, hm = PiccoloPlots.plot_wigner(ψ, xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
+    fig, ax, hm = plot_wigner(ψ, xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
     hidespines!(ax)
     hidexdecorations!(ax)
     hideydecorations!(ax)
@@ -216,7 +216,7 @@ end
     sol = mesolve(H, ψ, tlist, c_ops, progress_bar = Val(false))
 
     fig = Figure(size = (250, 250), figure_padding = 0)
-    fig, ax, hm = PiccoloPlots.plot_wigner(sol.states[end], xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
+    fig, ax, hm = plot_wigner(sol.states[end], xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
     hidespines!(ax)
     hidexdecorations!(ax)
     hideydecorations!(ax)
