@@ -3,7 +3,6 @@ using PiccoloPlots
 using QuantumToolbox
 using Makie
 using NamedTrajectories
-import PiccoloQuantumObjects
 using PiccoloQuantumObjects
 using TestItemRunner
 using TestItems
