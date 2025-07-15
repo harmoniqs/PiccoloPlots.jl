@@ -14,7 +14,6 @@ using LinearAlgebra
 # using GeometryBasics
 using NamedTrajectories
 using PiccoloQuantumObjects
-using TestItemRunner
 using TestItems
 
 function get_layout(index::Int, n::Int)
