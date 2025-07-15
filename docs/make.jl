@@ -2,6 +2,16 @@ using PiccoloPlots
 using Documenter
 using Literate
 
+if "clean" in ARGS
+    root = @__DIR__
+    rm(joinpath(root, "build"); force=true, recursive=true)
+    rm(joinpath(root, "src", "index.md"); force=true)
+    rm(joinpath(root, "src", "assets"); force=true, recursive=true)
+    rm(joinpath(root, "src", "generated"); force=true, recursive=true)
+
+    exit()
+end
+
 push!(LOAD_PATH, joinpath(@__DIR__, "..", "src"))
 
 @info "Building Documenter site for PiccoloPlots.jl"
