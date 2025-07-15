@@ -82,14 +82,15 @@ end
     traj = NamedTrajectory(
         (
             Ũ⃗ = hcat(operator_to_iso_vec.(Us)...),
-            a = a
+            a = a,
+            Δt = ts,
         );
         controls = :a,
-        timestep = Δt
+        timestep = :Δt,
     )
 
     fig = plot_unitary_populations(traj)
-    save("../assets/unitary_populations.png", fig)
+    # save("../assets/unitary_populations.png", fig)
     @test fig isa Figure
 end
 
