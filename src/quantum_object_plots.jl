@@ -11,10 +11,9 @@ using LaTeXStrings
 # only need MakieCore for plot name
 using MakieCore
 using LinearAlgebra
-using GeometryBasics
+# using GeometryBasics
 using NamedTrajectories
 using PiccoloQuantumObjects
-using TestItemRunner
 using TestItems
 
 function get_layout(index::Int, n::Int)
@@ -217,10 +216,11 @@ function animate_wigner end
     traj = NamedTrajectory(
         (
             Ũ⃗ = hcat(operator_to_iso_vec.(Us)...),
-            a = a
+            a = a,
+            Δt = ts,
         );
         controls = :a,
-        timestep = Δt
+        timestep = :Δt,
     )
 
     fig = plot_unitary_populations(traj)

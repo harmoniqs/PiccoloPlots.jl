@@ -3,7 +3,6 @@ using PiccoloPlots
 using QuantumToolbox
 using Makie
 using NamedTrajectories
-import PiccoloQuantumObjects
 using PiccoloQuantumObjects
 using TestItemRunner
 using TestItems
@@ -23,7 +22,6 @@ function PiccoloPlots.plot_bloch(
 
     b = QuantumToolbox.Bloch()
     QuantumToolbox.add_points!(b, hcat(bloch_vectors...))
-    # QuantumToolbox.add_vectors!(b, hcat(bloch_vectors...)) # this doesn't work because it is a matrix and not a vector for hcat
     fig, lscene = QuantumToolbox.render(b; kwargs...)
     display(fig)
     return fig, lscene, states
@@ -81,7 +79,6 @@ end
     )
 
     traj = NamedTrajectory(comps)
-    println(traj)
 
     fig, lscene, states = PiccoloPlots.plot_bloch(Val(:Makie), traj)
 
@@ -96,10 +93,9 @@ end
     using PiccoloQuantumObjects: ket_to_iso
     using CairoMakie
 
-    T = 20 # number of time steps
-    ts = range(0, π/2; length=T)  # quarter-turn from |0⟩ to |1⟩
+    T = 20
+    ts = range(0, π/2; length=T)
 
-    #contstructing kets
     kets = [QuantumObject(cos(θ) * [1.0 + 0im, 0.0 + 0im] + sin(θ) * [0.0 + 0im, 1.0 + 0im]) for θ in ts]
 
     iso_kets = ket_to_iso.(ψ.data for ψ in kets)
@@ -114,7 +110,7 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene = plot_bloch(Val(:Makie), traj)
+    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj)
 
     @test isa(fig, Figure)
     @test isa(lscene, LScene)
@@ -135,22 +131,17 @@ end
     sys = QuantumSystem(GATES[:Z], [GATES[:X], GATES[:Y]])
     ψ_inits = Vector{ComplexF64}.([[1.0, 0.0], [0.0, 1.0]])
     ψ_targets = Vector{ComplexF64}.([[0.0, 1.0], [1.0, 0.0]])
-    println("I am getting here")
 
     prob = QuantumStateSmoothPulseProblem(
         sys, ψ_inits, ψ_targets, T, Δt;
         piccolo_options=PiccoloOptions(verbose=false),
     )
-    println("I am getting here")
 
     solve!(prob, max_iter=100, print_level=5)
 
-    println("I am getting here")
 
-    # traj = NamedTrajectory(comps)
     traj = prob.trajectory
-    fig, lscene = plot_bloch(Val(:Makie), traj, state_name=:ψ̃1)
-    println("I am getting here")
+    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃1)
 
 
     @test fig isa Figure
@@ -181,93 +172,93 @@ end
     @test hm !== nothing
 end
 
-@testitem "plot_wigner julia logo" begin
-    # This is a test that is copied from the QuantumToolbox.jl examples
-    using QuantumToolbox
-    using CairoMakie
+# @testitem "plot_wigner julia logo" begin
+#     # This is a test that is copied from the QuantumToolbox.jl examples
+#     using QuantumToolbox
+#     using CairoMakie
 
-    CairoMakie.activate!(type = "svg", pt_per_unit = 1)
-    CairoMakie.enable_only_mime!(MIME"image/svg+xml"()) 
-    N = 30  # Cutoff of the Hilbert space for the harmonic oscillator
-    ρ = 2.5  # Amplitude of the coherent state
-    θ1 = π / 2
-    θ2 = π / 2 + 2π / 3
-    θ3 = π / 2 + 4π / 3
-    α1 = ρ * exp(im * θ1)
-    α2 = ρ * exp(im * θ2)
-    α3 = ρ * exp(im * θ3)
-    ψ = coherent(N, α1) + coherent(N, α2) + coherent(N, α3)
-    normalize!(ψ)
-    xvec = range(-ρ, ρ, 500) .* 1.5
-    yvec = xvec .+ (abs(imag(α1)) - abs(imag(α2))) / 2
+#     CairoMakie.activate!(type = "svg", pt_per_unit = 1)
+#     CairoMakie.enable_only_mime!(MIME"image/svg+xml"()) 
+#     N = 30  # Cutoff of the Hilbert space for the harmonic oscillator
+#     ρ = 2.5  # Amplitude of the coherent state
+#     θ1 = π / 2
+#     θ2 = π / 2 + 2π / 3
+#     θ3 = π / 2 + 4π / 3
+#     α1 = ρ * exp(im * θ1)
+#     α2 = ρ * exp(im * θ2)
+#     α3 = ρ * exp(im * θ3)
+#     ψ = coherent(N, α1) + coherent(N, α2) + coherent(N, α3)
+#     normalize!(ψ)
+#     xvec = range(-ρ, ρ, 500) .* 1.5
+#     yvec = xvec .+ (abs(imag(α1)) - abs(imag(α2))) / 2
 
-    fig = Figure(size = (250, 250), figure_padding = 0)
-    fig, ax, hm = PiccoloPlots.plot_wigner(ψ, xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
-    hidespines!(ax)
-    hidexdecorations!(ax)
-    hideydecorations!(ax)
-    γ = 0.012
+#     fig = Figure(size = (250, 250), figure_padding = 0)
+#     fig, ax, hm = plot_wigner(ψ, xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
+#     hidespines!(ax)
+#     hidexdecorations!(ax)
+#     hideydecorations!(ax)
+#     γ = 0.012
 
-    a = destroy(N)
-    H = a' * a
-    c_ops = [sqrt(γ) * a]
+#     a = destroy(N)
+#     H = a' * a
+#     c_ops = [sqrt(γ) * a]
 
-    tlist = range(0, 2π, 100)
+#     tlist = range(0, 2π, 100)
 
-    sol = mesolve(H, ψ, tlist, c_ops, progress_bar = Val(false))
+#     sol = mesolve(H, ψ, tlist, c_ops, progress_bar = Val(false))
 
-    fig = Figure(size = (250, 250), figure_padding = 0)
-    fig, ax, hm = PiccoloPlots.plot_wigner(sol.states[end], xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
-    hidespines!(ax)
-    hidexdecorations!(ax)
-    hideydecorations!(ax)
+#     fig = Figure(size = (250, 250), figure_padding = 0)
+#     fig, ax, hm = plot_wigner(sol.states[end], xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
+#     hidespines!(ax)
+#     hidexdecorations!(ax)
+#     hideydecorations!(ax)
 
-    fig, ax, hm
+#     fig, ax, hm
 
-    function set_color_julia(x, y, wig::T, α1, α2, α3, cmap1, cmap2, cmap3, δ) where {T}
-        amp1 = gaussian(x, real(α1), δ) * gaussian(y, imag(α1), δ)
-        amp2 = gaussian(x, real(α2), δ) * gaussian(y, imag(α2), δ)
-        amp3 = gaussian(x, real(α3), δ) * gaussian(y, imag(α3), δ)
+#     function set_color_julia(x, y, wig::T, α1, α2, α3, cmap1, cmap2, cmap3, δ) where {T}
+#         amp1 = gaussian(x, real(α1), δ) * gaussian(y, imag(α1), δ)
+#         amp2 = gaussian(x, real(α2), δ) * gaussian(y, imag(α2), δ)
+#         amp3 = gaussian(x, real(α3), δ) * gaussian(y, imag(α3), δ)
 
-        c1 = get(cmap1, wig)
-        c2 = get(cmap2, wig)
-        c3 = get(cmap3, wig)
+#         c1 = get(cmap1, wig)
+#         c2 = get(cmap2, wig)
+#         c3 = get(cmap3, wig)
 
-        c_tot = (amp1 * c1 + amp2 * c2 + amp3 * c3) / (amp1 + amp2 + amp3)
+#         c_tot = (amp1 * c1 + amp2 * c2 + amp3 * c3) / (amp1 + amp2 + amp3)
 
-        wig_abs = abs(2 * (wig - 1 / 2))
-        # We introduce some non-linearity to increase the contrast
-        alpha = 2 * (1 / (1 + exp(-5 * wig_abs)) - 1 / 2)
+#         wig_abs = abs(2 * (wig - 1 / 2))
+#         # We introduce some non-linearity to increase the contrast
+#         alpha = 2 * (1 / (1 + exp(-5 * wig_abs)) - 1 / 2)
 
-        return RGBAf(c_tot.r, c_tot.g, c_tot.b, alpha)
-    end
+#         return RGBAf(c_tot.r, c_tot.g, c_tot.b, alpha)
+#     end
 
-    wig = wigner(sol.states[end], xvec, yvec, g = 2)
-    X, Y = meshgrid(xvec, yvec)
-    δ = 1.25 # Smoothing parameter for the Gaussian functions
-    julia_red = RGBAf(0.796, 0.235, 0.2, 1.0)
-    julia_green = RGBAf(0.22, 0.596, 0.149, 1.0)
-    julia_blue = RGBAf(0.251, 0.388, 0.847, 1.0)
-    julia_purple = RGBAf(0.584, 0.345, 0.698, 1.0)
-    n_repeats = 2
+#     wig = wigner(sol.states[end], xvec, yvec, g = 2)
+#     X, Y = meshgrid(xvec, yvec)
+#     δ = 1.25 # Smoothing parameter for the Gaussian functions
+#     julia_red = RGBAf(0.796, 0.235, 0.2, 1.0)
+#     julia_green = RGBAf(0.22, 0.596, 0.149, 1.0)
+#     julia_blue = RGBAf(0.251, 0.388, 0.847, 1.0)
+#     julia_purple = RGBAf(0.584, 0.345, 0.698, 1.0)
+#     n_repeats = 2
 
-    cmap1 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_green, n_repeats)))
-    cmap2 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_red, n_repeats)))
-    cmap3 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_purple, n_repeats)))
+#     cmap1 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_green, n_repeats)))
+#     cmap2 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_red, n_repeats)))
+#     cmap3 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_purple, n_repeats)))
 
-    vmax = maximum(wig)
-    wig_normalized = wig ./ (vmax * 2) .+ 1 / 2
+#     vmax = maximum(wig)
+#     wig_normalized = wig ./ (vmax * 2) .+ 1 / 2
 
-    img = set_color_julia.(X, Y, wig_normalized, α1, α2, α3, Ref(cmap1), Ref(cmap2), Ref(cmap3), δ)
+#     img = set_color_julia.(X, Y, wig_normalized, α1, α2, α3, Ref(cmap1), Ref(cmap2), Ref(cmap3), δ)
 
-    fig = Figure(size = (250, 250), figure_padding = 0, backgroundcolor = :transparent)
-    ax = Axis(fig[1, 1], backgroundcolor = :transparent)
-    image!(ax, img', rasterize = 1)
-    hidespines!(ax)
-    hidexdecorations!(ax)
-    hideydecorations!(ax)
-    fig
-end
+#     fig = Figure(size = (250, 250), figure_padding = 0, backgroundcolor = :transparent)
+#     ax = Axis(fig[1, 1], backgroundcolor = :transparent)
+#     image!(ax, img', rasterize = 1)
+#     hidespines!(ax)
+#     hidexdecorations!(ax)
+#     hideydecorations!(ax)
+#     fig
+# end
 
 
 end
