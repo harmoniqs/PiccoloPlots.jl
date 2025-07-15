@@ -1,13 +1,20 @@
 module QuantumObjectPlots
 
 export plot_unitary_populations
+export plot_bloch
+export animate_bloch
+export animate_name
+export plot_wigner
+export animate_wigner
 
 using LaTeXStrings
 # only need MakieCore for plot name
 using MakieCore
+using LinearAlgebra
+# using GeometryBasics
 using NamedTrajectories
 using PiccoloQuantumObjects
-using TestItemRunner
+using TestItems
 
 function get_layout(index::Int, n::Int)
     √n = isqrt(n) + 1
@@ -59,6 +66,133 @@ function plot_unitary_populations(
         kwargs...
     )
 end
+
+"""
+    plot_bloch_traj(
+        ::Val{:Makie},
+        traj::NamedTrajectory;
+        state_name::Symbol = :ψ̃,
+        kwargs...
+    )
+
+Plot the trajectory of a quantum state on the Bloch sphere.
+
+# Arguments
+- `traj::NamedTrajectory`: The trajectory containing quantum states to plot.
+- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
+
+# Keyword Arguments
+- `kwargs...`: Additional keyword arguments passed to `QuantumToolbox.render`.
+
+# Returns
+A tuple `(fig, lscene, states)` where:
+- `fig`: The Makie `Figure` object.
+- `lscene`: The 3D scene containing the Bloch sphere.
+- `states`: The list of `QuantumObject`s plotted.
+"""
+function plot_bloch end
+
+"""
+    plot_wigner(
+        traj::NamedTrajectory;
+        state_name::Symbol=:ψ̃,
+        library::Val = Val(:Makie),
+        xvec = -5:0.1:5,
+        yvec = -5:0.1:5,
+        projection::Val=Val(:two_dim),
+        colorbar::Bool=true,
+        kwargs...
+    )
+
+Plot the Wigner function of a quantum state in a trajectory.
+
+# Arguments
+- `traj::NamedTrajectory`: The trajectory containing quantum states.
+- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
+- `library::Val`: The plotting library to use (default `Val(:Makie)`).
+
+# Keyword Arguments
+- `xvec`, `yvec`: Grids for plotting the Wigner function.
+- `projection::Val`: Type of projection for visualization (`Val(:two_dim)` or `Val(:three_dim)`).
+- `colorbar::Bool`: Whether to display a colorbar.
+- `kwargs...`: Additional keyword arguments passed to the plot.
+
+# Returns
+A tuple `(fig, ax, hm, states)` where:
+- `fig`: The Makie `Figure`.
+- `ax`: The axis containing the plot.
+- `hm`: The heatmap handle.
+- `states`: The list of quantum states plotted.
+"""
+function plot_wigner end
+
+"""
+    animate_bloch_old(traj::NamedTrajectory; state_name::Symbol=:ψ̃, fps::Int=60)
+
+Animate the evolution of a quantum trajectory on the Bloch sphere without using Quantum Toolbox.
+
+# Arguments
+- `traj::NamedTrajectory`: The trajectory containing quantum states.
+- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
+- `fps::Int`: Frames per second for the animation. Default is `60`.
+
+# Returns
+The Makie `Figure` object displaying the animation.
+"""
+function animate_bloch end
+
+"""
+    animate_name(traj::NamedTrajectory; state_name::Symbol=:x, fps::Int=30)
+
+Animate the evolution of a scalar or vector-valued variable in the trajectory.
+
+# Arguments
+- `traj::NamedTrajectory`: The trajectory containing the variable.
+- `state_name::Symbol`: The name of the variable in the trajectory. Default is `:x`.
+- `fps::Int`: Frames per second for the animation. Default is `30`.
+
+# Returns
+A tuple `(fig, ax)` where:
+- `fig`: The Makie `Figure`.
+- `ax`: The axis containing the animated plot.
+"""
+function animate_name end
+
+"""
+    animate_wigner(
+        traj::NamedTrajectory;
+        state_name::Symbol=:ψ̃,
+        fps::Int=30,
+        xvec = -5:0.1:5,
+        yvec = -5:0.1:5,
+        projection::Val=Val(:two_dim),
+        colorbar::Bool=true,
+        kwargs...
+    )
+
+Animate the evolution of the Wigner function for a quantum trajectory.
+
+# Arguments
+- `traj::NamedTrajectory`: The trajectory containing quantum states.
+- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
+- `fps::Int`: Frames per second for the animation. Default is `30`.
+
+# Keyword Arguments
+- `xvec`, `yvec`: Grids for the Wigner function.
+- `projection::Val`: Type of projection for visualization (`Val(:two_dim)` or `Val(:three_dim)`).
+- `colorbar::Bool`: Whether to display a colorbar.
+- `kwargs...`: Additional keyword arguments passed to the plot.
+
+# Returns
+A tuple `(fig, ax, states)` where:
+- `fig`: The Makie `Figure`.
+- `ax`: The axis containing the animated Wigner plot.
+- `states`: The list of quantum states animated.
+"""
+function animate_wigner end
+
+
+
 
 # ============================================================================ #
 
