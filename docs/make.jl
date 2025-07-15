@@ -24,7 +24,7 @@ pages = [
 
 format = Documenter.HTML(;
     prettyurls=get(ENV, "CI", "false") == "true",
-    canonical="https://docs.harmoniqs.co/NamedTrajectories.jl",
+    canonical="https://docs.harmoniqs.co/PiccoloPlots.jl", # TODO: should be "https://docs.harmoniqs.co/PiccoloPlots"; fix this in "github.com/harmoniqs/{DirectTrajOpt,NamedTrajectories,Piccolo,PiccoloPlots,PiccoloQuantumObjects,QuantumCollocation,TrajectoryIndexingUtils}.jl/tree/main/docs/make.jl"
     edit_link="main",
     assets=String[],
     mathengine = MathJax3(Dict(
@@ -52,8 +52,10 @@ format = Documenter.HTML(;
 
 src = joinpath(@__DIR__, "src")
 lit = joinpath(@__DIR__, "literate")
+assets = joinpath(@__DIR__, "..", "assets")
 
 lit_output = joinpath(src, "generated")
+assets_output = joinpath(@__DIR__, "src", "assets")
 
 for (root, _, files) ∈ walkdir(lit), file ∈ files
     splitext(file)[2] == ".jl" || continue
@@ -61,6 +63,8 @@ for (root, _, files) ∈ walkdir(lit), file ∈ files
     opath = splitdir(replace(ipath, lit=>lit_output))[1]
     Literate.markdown(ipath, opath)
 end
+
+cp(assets, assets_output, force=true)
 
 makedocs(;
     modules=[PiccoloPlots],
