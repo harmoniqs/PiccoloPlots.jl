@@ -224,7 +224,7 @@ function animate_wigner end
     )
 
     fig = plot_unitary_populations(traj)
-    save("../assets/unitary_populations.png", fig)
+    # save("../assets/unitary_populations.png", fig)
     @test fig isa Figure
 end
 
