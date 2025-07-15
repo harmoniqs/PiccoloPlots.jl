@@ -113,7 +113,7 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene = plot_bloch(Val(:Makie), traj)
+    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj)
 
     @test isa(fig, Figure)
     @test isa(lscene, LScene)
@@ -148,7 +148,7 @@ end
 
     # traj = NamedTrajectory(comps)
     traj = prob.trajectory
-    fig, lscene = plot_bloch(Val(:Makie), traj, state_name=:ψ̃1)
+    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃1)
     println("I am getting here")
 
 
