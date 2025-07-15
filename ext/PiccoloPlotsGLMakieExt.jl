@@ -14,10 +14,11 @@ function PiccoloPlots.animate_bloch(
     traj::NamedTrajectory;
     state_name::Symbol=:ψ̃,
     fps::Int=30,
+    show_vector_at::Union{Nothing, AbstractVector{<:Integer}} = nothing,
 )
 
     fig, lscene, states = PiccoloPlots.plot_bloch(
-        Val(:Makie), traj; state_name=state_name
+        Val(:Makie), traj; state_name=state_name, show_vector_at=show_vector_at
     )
     bloch_vectors = QuantumToolbox._state_to_bloch.(states)
 
@@ -141,6 +142,33 @@ end
 #     @test lscene isa LScene
 #     @test length(states) == T
 # end
+
+# @testitem "Animate Bloch sphere with quarter-turn trajectory showing vectors" begin
+#     using PiccoloPlots
+#     using QuantumToolbox
+#     using NamedTrajectories
+#     using PiccoloQuantumObjects
+#     using GLMakie
+
+#     GLMakie.activate!()
+
+#     T = 20
+#     ts = range(0, π/2; length=T)
+#     kets = [QuantumObject(cos(θ)*[1.0, 0.0] + sin(θ)*[0.0, 1.0]) for θ in ts]
+#     iso_kets = ket_to_iso.(ψ.data for ψ in kets)
+
+#     traj = NamedTrajectory((
+#         ψ̃ = hcat(iso_kets...),
+#         Δt = fill(1.0, T),
+#     ))
+
+#     fig, lscene, states = PiccoloPlots.animate_bloch(traj; fps=10, show_vector_at=[1, 10, 20])
+
+#     @test fig isa Figure
+#     @test lscene isa LScene
+#     @test length(states) == T
+# end
+
 
 # @testitem "Animate scalar data with quarter-turn trajectory" begin
 #     using PiccoloPlots
