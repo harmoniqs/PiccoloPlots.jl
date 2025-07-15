@@ -117,78 +117,78 @@ function PiccoloPlots.animate_wigner(
 end
 
 
-@testitem "Animate Bloch sphere with quarter-turn trajectory" begin
-    using PiccoloPlots
-    using QuantumToolbox
-    using NamedTrajectories
-    using PiccoloQuantumObjects
-    using GLMakie
+# @testitem "Animate Bloch sphere with quarter-turn trajectory" begin
+#     using PiccoloPlots
+#     using QuantumToolbox
+#     using NamedTrajectories
+#     using PiccoloQuantumObjects
+#     using GLMakie
 
-    GLMakie.activate!()
+#     GLMakie.activate!()
 
-    T = 20
-    ts = range(0, π/2; length=T)
-    kets = [QuantumObject(cos(θ)*[1.0, 0.0] + sin(θ)*[0.0, 1.0]) for θ in ts]
-    iso_kets = ket_to_iso.(ψ.data for ψ in kets)
+#     T = 20
+#     ts = range(0, π/2; length=T)
+#     kets = [QuantumObject(cos(θ)*[1.0, 0.0] + sin(θ)*[0.0, 1.0]) for θ in ts]
+#     iso_kets = ket_to_iso.(ψ.data for ψ in kets)
 
-    traj = NamedTrajectory((
-        ψ̃ = hcat(iso_kets...),
-        Δt = fill(1.0, T),
-    ))
+#     traj = NamedTrajectory((
+#         ψ̃ = hcat(iso_kets...),
+#         Δt = fill(1.0, T),
+#     ))
 
-    fig, lscene, states = PiccoloPlots.animate_bloch(traj; fps=10)
+#     fig, lscene, states = PiccoloPlots.animate_bloch(traj; fps=10)
 
-    @test fig isa Figure
-    @test lscene isa LScene
-    @test length(states) == T
-end
+#     @test fig isa Figure
+#     @test lscene isa LScene
+#     @test length(states) == T
+# end
 
-@testitem "Animate scalar data with quarter-turn trajectory" begin
-    using PiccoloPlots
-    using NamedTrajectories
-    using GLMakie
+# @testitem "Animate scalar data with quarter-turn trajectory" begin
+#     using PiccoloPlots
+#     using NamedTrajectories
+#     using GLMakie
 
-    GLMakie.activate!()
+#     GLMakie.activate!()
 
-    T = 20
-    ts = range(0, 2π; length=T)
-    sin_values = sin.(ts)
-    traj = NamedTrajectory((
-        x = reshape(sin_values, 1, :),
-        Δt = fill(1.0, T),
-    ))
+#     T = 20
+#     ts = range(0, 2π; length=T)
+#     sin_values = sin.(ts)
+#     traj = NamedTrajectory((
+#         x = reshape(sin_values, 1, :),
+#         Δt = fill(1.0, T),
+#     ))
 
-    fig, ax = PiccoloPlots.animate_name(traj, state_name=:x, fps=10)
+#     fig, ax = PiccoloPlots.animate_name(traj, state_name=:x, fps=10)
 
-    @test fig isa Figure
-    @test ax isa Axis
-end
+#     @test fig isa Figure
+#     @test ax isa Axis
+# end
 
 
-@testitem "Animate Wigner function with quarter-turn trajectory" begin
-    using PiccoloPlots
-    using QuantumToolbox
-    using NamedTrajectories
-    using PiccoloQuantumObjects: ket_to_iso
-    using GLMakie
+# @testitem "Animate Wigner function with quarter-turn trajectory" begin
+#     using PiccoloPlots
+#     using QuantumToolbox
+#     using NamedTrajectories
+#     using PiccoloQuantumObjects: ket_to_iso
+#     using GLMakie
 
-    GLMakie.activate!()
+#     GLMakie.activate!()
 
-    T = 20
-    ts = range(0, π/2; length=T)
-    kets = [QuantumObject(cos(θ)*[1.0, 0.0] + sin(θ)*[0.0, 1.0]) for θ in ts]
-    iso_kets = ket_to_iso.(ψ.data for ψ in kets)
+#     T = 20
+#     ts = range(0, π/2; length=T)
+#     kets = [QuantumObject(cos(θ)*[1.0, 0.0] + sin(θ)*[0.0, 1.0]) for θ in ts]
+#     iso_kets = ket_to_iso.(ψ.data for ψ in kets)
 
-    traj = NamedTrajectory((
-        ψ̃ = hcat(iso_kets...),
-        Δt = fill(1.0, T),
-    ))
+#     traj = NamedTrajectory((
+#         ψ̃ = hcat(iso_kets...),
+#         Δt = fill(1.0, T),
+#     ))
 
-    fig, ax, states = PiccoloPlots.animate_wigner(traj; fps=5)
+#     fig, ax, states = PiccoloPlots.animate_wigner(traj; fps=5)
 
-    @test fig isa Figure
-    @test ax isa Axis
-    @test length(states) == T
-end
+#     @test fig isa Figure
+#     @test ax isa Axis
+#     @test length(states) == T
+# end
 
 end

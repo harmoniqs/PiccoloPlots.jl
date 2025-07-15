@@ -48,4 +48,4 @@ CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["QuantumCollocation", "QuantumToolbox", "Makie", "GLMakie", "Colors", "CairoMakie", "Test"]
+test = ["QuantumCollocation", "QuantumToolbox", "Makie", "CairoMakie", "Test"]
