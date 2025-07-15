@@ -13,6 +13,7 @@ function PiccoloPlots.plot_bloch(
     ::Val{:Makie},
     traj::NamedTrajectory{};
     state_name::Symbol = :ψ̃,
+    show_vector_at::Union{Nothing, AbstractVector{<:Integer}} = nothing,
     kwargs...
 )
     iso_states = eachcol(traj[state_name])
@@ -22,8 +23,21 @@ function PiccoloPlots.plot_bloch(
 
     b = QuantumToolbox.Bloch()
     QuantumToolbox.add_points!(b, hcat(bloch_vectors...))
-    # QuantumToolbox.add_vectors!(b, hcat(bloch_vectors...)) # this doesn't work because it is a matrix and not a vector for hcat
+
+    if show_vector_at !== nothing
+            for idx in show_vector_at
+                @assert 1 ≤ idx ≤ length(bloch_vectors) "Index $idx out of bounds for trajectory of length $(length(bloch_vectors))"
+                # iso_vec = traj[state_name][:, idx]
+                # ket = iso_to_ket(iso_vec)
+                # state = QuantumObject(ket)
+                QuantumToolbox.add_vectors!(b, bloch_vectors[idx])
+                # QuantumToolbox.add_vectors!(b, bloch_vectors[idx])
+            end
+        end
+
     fig, lscene = QuantumToolbox.render(b; kwargs...)
+
+    
     display(fig)
     return fig, lscene, states
 end 
@@ -80,9 +94,32 @@ end
     )
 
     traj = NamedTrajectory(comps)
-    println(traj)
 
-    fig, lscene, states = PiccoloPlots.plot_bloch(Val(:Makie), traj)
+    fig, lscene, states = PiccoloPlots.plot_bloch(Val(:Makie), traj,)
+
+    @test fig isa Figure
+    @test lscene isa LScene
+end
+
+@testitem "Test plot_bloch for Bloch sphere trajectory with one vector arrow shown" begin
+    using PiccoloPlots
+    using QuantumToolbox
+    using NamedTrajectories
+    using PiccoloQuantumObjects: ket_to_iso
+    using CairoMakie
+
+    CairoMakie.activate!()
+    x = ComplexF64[1.0; 0.0]
+    y = ComplexF64[0.0, 1.0]
+    
+    comps = (
+        ψ̃ = hcat(ket_to_iso(x), ket_to_iso(y)),
+        Δt = [1.0; 1.0],
+    )
+
+    traj = NamedTrajectory(comps)
+
+    fig, lscene, states = PiccoloPlots.plot_bloch(Val(:Makie), traj, show_vector_at=[1])
 
     @test fig isa Figure
     @test lscene isa LScene
@@ -95,10 +132,9 @@ end
     using PiccoloQuantumObjects: ket_to_iso
     using CairoMakie
 
-    T = 20 # number of time steps
-    ts = range(0, π/2; length=T)  # quarter-turn from |0⟩ to |1⟩
+    T = 20
+    ts = range(0, π/2; length=T)
 
-    #contstructing kets
     kets = [QuantumObject(cos(θ) * [1.0 + 0im, 0.0 + 0im] + sin(θ) * [0.0 + 0im, 1.0 + 0im]) for θ in ts]
 
     iso_kets = ket_to_iso.(ψ.data for ψ in kets)
@@ -113,7 +149,37 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj)
+    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃)
+
+    @test isa(fig, Figure)
+    @test isa(lscene, LScene)
+end
+
+@testitem "plot_bloch shows expected curved Bloch path with multiple vectors" begin
+    using PiccoloPlots
+    using QuantumToolbox
+    using NamedTrajectories
+    using PiccoloQuantumObjects: ket_to_iso
+    using CairoMakie
+
+    T = 20
+    ts = range(0, π/2; length=T)
+
+    kets = [QuantumObject(cos(θ) * [1.0 + 0im, 0.0 + 0im] + sin(θ) * [0.0 + 0im, 1.0 + 0im]) for θ in ts]
+
+    iso_kets = ket_to_iso.(ψ.data for ψ in kets)
+
+    ψ̃ = hcat(iso_kets...)
+    Δt = fill(1.0, T)
+
+    comps = (
+        ψ̃ = ψ̃,
+        Δt = Δt,
+    )
+
+    traj = NamedTrajectory(comps)
+
+    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃, show_vector_at=[1, 10, 15])
 
     @test isa(fig, Figure)
     @test isa(lscene, LScene)
@@ -134,23 +200,47 @@ end
     sys = QuantumSystem(GATES[:Z], [GATES[:X], GATES[:Y]])
     ψ_inits = Vector{ComplexF64}.([[1.0, 0.0], [0.0, 1.0]])
     ψ_targets = Vector{ComplexF64}.([[0.0, 1.0], [1.0, 0.0]])
-    println("I am getting here")
 
     prob = QuantumStateSmoothPulseProblem(
         sys, ψ_inits, ψ_targets, T, Δt;
         piccolo_options=PiccoloOptions(verbose=false),
     )
-    println("I am getting here")
 
     solve!(prob, max_iter=100, print_level=5)
 
-    println("I am getting here")
 
-    # traj = NamedTrajectory(comps)
     traj = prob.trajectory
     fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃1)
-    println("I am getting here")
 
+
+    @test fig isa Figure
+    @test lscene isa LScene
+end
+
+@testitem "plot_bloch with problem-constructed trajectory and show_vector_at" begin
+    using PiccoloPlots
+    using QuantumToolbox
+    using NamedTrajectories
+    using PiccoloQuantumObjects
+    using QuantumCollocation
+    using CairoMakie
+
+    CairoMakie.activate!()
+    
+    T = 50
+    Δt = 0.2
+    sys = QuantumSystem(GATES[:Z], [GATES[:X], GATES[:Y]])
+    ψ_inits = Vector{ComplexF64}.([[1.0, 0.0], [0.0, 1.0]])
+    ψ_targets = Vector{ComplexF64}.([[0.0, 1.0], [1.0, 0.0]])
+
+    prob = QuantumStateSmoothPulseProblem(
+        sys, ψ_inits, ψ_targets, T, Δt;
+    )
+
+    solve!(prob, max_iter=100, print_level=5)
+
+    traj = prob.trajectory
+    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃1, show_vector_at=[1, 10])
 
     @test fig isa Figure
     @test lscene isa LScene
