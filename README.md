@@ -90,13 +90,15 @@ Us = exp.(-im * [(H_drift + sum(a[:, k] .* H_drives)) * ts[k] for k = 1:N])
 traj = NamedTrajectory(
     (
         Ũ⃗ = hcat(operator_to_iso_vec.(Us)...),
-        a = a
+        a = a,
+        Δt = ts,
     );
     controls = :a,
-    timestep = Δt
+    timestep = :Δt,
 )
 
 # Plot the populations of the first and second qubits
 plot_unitary_populations(traj)
 ```
+
 ![](assets/unitary_populations.png)
