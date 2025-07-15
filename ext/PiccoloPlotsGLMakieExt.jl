@@ -15,6 +15,7 @@ function PiccoloPlots.animate_bloch(
     state_name::Symbol=:ψ̃,
     fps::Int=30,
     show_vector_at::Union{Nothing, AbstractVector{<:Integer}} = nothing,
+    repeat::Bool=false,
 )
 
     fig, lscene, states = PiccoloPlots.plot_bloch(
@@ -33,10 +34,17 @@ function PiccoloPlots.animate_bloch(
     display(fig)
 
     @async begin
-        while isopen(fig.scene)
+        disp = true
+        while (!(fig.scene.isclosed)) && disp
             for i in 1:length(bloch_vectors)
+                if fig.scene.isclosed
+                    break
+                end
+
                 index[] = i
                 sleep(1 / fps)
+
+                disp = disp && repeat
             end
         end
     end
@@ -47,9 +55,10 @@ end
 
 function PiccoloPlots.animate_name(
     traj::NamedTrajectory;
-    state_name::Symbol =:x,
+    state_name::Symbol=:x,
     fps::Int=30,
-    )
+    repeat::Bool=false,
+)
     
     fig = Figure()
     ax = Axis(fig[1, 1])
@@ -67,10 +76,17 @@ function PiccoloPlots.animate_name(
     display(fig)
 
     @async begin
-        while isopen(fig.scene)
+        disp = true
+        while (!(fig.scene.isclosed)) && disp
             for t in 1:traj.T
+                if fig.scene.isclosed
+                    break
+                end
+
                 index[] = t
                 sleep(1 / fps)
+
+                disp = disp && repeat
             end
         end
     end
@@ -86,7 +102,7 @@ function PiccoloPlots.animate_wigner(
     yvec = -5:0.1:5,
     projection::Val = Val(:two_dim),
     colorbar::Bool = true,
-
+    repeat::Bool=false,
 )
 
     fig, ax, hm, states = PiccoloPlots.plot_wigner(
@@ -103,12 +119,19 @@ function PiccoloPlots.animate_wigner(
     display(fig)
 
     @async begin
-        while isopen(fig.scene)
+        disp = true
+        while (!(fig.scene.isclosed)) && disp
             for (i, ψ) in enumerate(states)
+                if fig.scene.isclosed
+                    break
+                end
+
                 label.text[] = "Timestep $i"
                 W = transpose(wigner(ψ, xvec, yvec))
                 hm[3][] = W 
                 sleep(1 / fps)
+
+                disp = disp && repeat
             end
         end
     end
