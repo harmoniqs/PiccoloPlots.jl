@@ -58,7 +58,6 @@ function PiccoloPlots.animate_name(
     index = Observable(1)
     times = get_times(traj)
     data = traj[state_name]
-    println(times)
     for i in 1:size(data, 1)
         moving_dot = @lift(Point2f(times[$index], data[i, $index]))
         scatter!(ax, moving_dot, color=:red, markersize=10)

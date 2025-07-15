@@ -22,7 +22,6 @@ function PiccoloPlots.plot_bloch(
 
     b = QuantumToolbox.Bloch()
     QuantumToolbox.add_points!(b, hcat(bloch_vectors...))
-    # QuantumToolbox.add_vectors!(b, hcat(bloch_vectors...)) # this doesn't work because it is a matrix and not a vector for hcat
     fig, lscene = QuantumToolbox.render(b; kwargs...)
     display(fig)
     return fig, lscene, states
@@ -80,7 +79,6 @@ end
     )
 
     traj = NamedTrajectory(comps)
-    println(traj)
 
     fig, lscene, states = PiccoloPlots.plot_bloch(Val(:Makie), traj)
 
@@ -95,10 +93,9 @@ end
     using PiccoloQuantumObjects: ket_to_iso
     using CairoMakie
 
-    T = 20 # number of time steps
-    ts = range(0, π/2; length=T)  # quarter-turn from |0⟩ to |1⟩
+    T = 20
+    ts = range(0, π/2; length=T)
 
-    #contstructing kets
     kets = [QuantumObject(cos(θ) * [1.0 + 0im, 0.0 + 0im] + sin(θ) * [0.0 + 0im, 1.0 + 0im]) for θ in ts]
 
     iso_kets = ket_to_iso.(ψ.data for ψ in kets)
@@ -134,22 +131,17 @@ end
     sys = QuantumSystem(GATES[:Z], [GATES[:X], GATES[:Y]])
     ψ_inits = Vector{ComplexF64}.([[1.0, 0.0], [0.0, 1.0]])
     ψ_targets = Vector{ComplexF64}.([[0.0, 1.0], [1.0, 0.0]])
-    println("I am getting here")
 
     prob = QuantumStateSmoothPulseProblem(
         sys, ψ_inits, ψ_targets, T, Δt;
         piccolo_options=PiccoloOptions(verbose=false),
     )
-    println("I am getting here")
 
     solve!(prob, max_iter=100, print_level=5)
 
-    println("I am getting here")
 
-    # traj = NamedTrajectory(comps)
     traj = prob.trajectory
     fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃1)
-    println("I am getting here")
 
 
     @test fig isa Figure
