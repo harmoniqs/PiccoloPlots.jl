@@ -115,15 +115,10 @@ end
     using PiccoloQuantumObjects: ket_to_iso
     using CairoMakie
 
-    CairoMakie.activate!()
     x = ComplexF64[1.0; 0.0]
     y = ComplexF64[0.0, 1.0]
     
-    comps = (
-        ψ̃ = hcat(ket_to_iso(x), ket_to_iso(y)),
-        Δt = [1.0; 1.0],
-    )
-
+    comps = (ψ̃ = hcat(ket_to_iso(x), ket_to_iso(y)), Δt = [1.0; 1.0],)
     traj = NamedTrajectory(comps)
 
     fig, lscene, states = plot_bloch(traj)
@@ -155,7 +150,6 @@ end
 end
 
 @testitem "plot_bloch shows expected curved Bloch path" begin
-    using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
     using PiccoloQuantumObjects: ket_to_iso
@@ -188,7 +182,6 @@ end
 end
 
 @testitem "plot_bloch shows expected curved Bloch path with multiple vectors" begin
-    using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
     using PiccoloQuantumObjects: ket_to_iso
@@ -211,7 +204,7 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃, show_vector_at=[1, 10, 15])
+    fig, lscene = plot_bloch(traj, state_name=:ψ̃, show_vector_at=[1, 10, 15])
 
     @test isa(fig, Figure)
     @test isa(lscene, LScene)
@@ -235,8 +228,6 @@ end
         piccolo_options=PiccoloOptions(verbose=false),
     )
 
-    solve!(prob, max_iter=100, print_level=5)
-
     traj = prob.trajectory
     fig, lscene = plot_bloch(traj, state_name=:ψ̃1)
 
@@ -245,7 +236,6 @@ end
 end
 
 @testitem "plot_bloch with problem-constructed trajectory and show_vector_at" begin
-    using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
     using PiccoloQuantumObjects
@@ -261,8 +251,6 @@ end
     prob = QuantumStateSmoothPulseProblem(
         sys, ψ_inits, ψ_targets, T, Δt;
     )
-
-    solve!(prob, max_iter=100, print_level=5)
 
     traj = prob.trajectory
     fig, lscene = plot_bloch(traj, state_name=:ψ̃1, show_vector_at=[1, 10])
