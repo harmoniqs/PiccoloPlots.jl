@@ -1,4 +1,5 @@
-module PiccoloPlotsQuantumToolboxExt
+module QuantumToolboxExt
+
 using PiccoloPlots
 using QuantumToolbox
 using Makie
@@ -7,13 +8,32 @@ using PiccoloQuantumObjects
 using TestItemRunner
 using TestItems
 
+"""
+    plot_bloch(
+        traj::NamedTrajectory;
+        state_name::Symbol = :ψ̃,
+        kwargs...
+    )
 
+Plot the trajectory of a quantum state on the Bloch sphere.
 
-function PiccoloPlots.plot_bloch(
-    ::Val{:Makie},
-    traj::NamedTrajectory{};
+# Arguments
+- `traj::NamedTrajectory`: The trajectory containing quantum states to plot.
+
+# Keyword Arguments
+- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
+- `kwargs...`: Additional keyword arguments passed to `QuantumToolbox.render`.
+
+# Returns
+A tuple `(fig, lscene, states)` where:
+- `fig`: The Makie `Figure` object.
+- `lscene`: The 3D scene containing the Bloch sphere.
+- `states`: The list of `QuantumObject`s plotted.
+"""
+function QuantumToolbox.plot_bloch(
+    traj::NamedTrajectory;
     state_name::Symbol = :ψ̃,
-    show_vector_at::Union{Nothing, AbstractVector{<:Integer}} = nothing,
+    show_vector_at::AbstractVector{Int}=[],
     kwargs...
 )
     iso_states = eachcol(traj[state_name])
@@ -24,33 +44,53 @@ function PiccoloPlots.plot_bloch(
     b = QuantumToolbox.Bloch()
     QuantumToolbox.add_points!(b, hcat(bloch_vectors...))
 
-    if show_vector_at !== nothing
-            for idx in show_vector_at
-                @assert 1 ≤ idx ≤ length(bloch_vectors) "Index $idx out of bounds for trajectory of length $(length(bloch_vectors))"
-                # iso_vec = traj[state_name][:, idx]
-                # ket = iso_to_ket(iso_vec)
-                # state = QuantumObject(ket)
-                QuantumToolbox.add_vectors!(b, bloch_vectors[idx])
-                # QuantumToolbox.add_vectors!(b, bloch_vectors[idx])
-            end
-        end
+    for idx in show_vector_at
+        @assert 1 ≤ idx ≤ traj.T "Invalid knot point index."
+        QuantumToolbox.add_vectors!(b, bloch_vectors[idx])
+    end
 
     fig, lscene = QuantumToolbox.render(b; kwargs...)
 
-    
     display(fig)
     return fig, lscene, states
-end 
-
-function PiccoloPlots.plot_bloch(
-    traj::NamedTrajectory; kwargs...
-)
-    PiccoloPlots.plot_bloch(Val(:Makie), traj; kwargs...)
 end
 
-function PiccoloPlots.plot_wigner(
-    ::Val{:Makie},
-    traj::NamedTrajectory;
+
+"""
+    plot_wigner(
+        traj::NamedTrajectory,
+        idx::Int;
+        state_name::Symbol=:ψ̃,
+        xvec = -5:0.1:5,
+        yvec = -5:0.1:5,
+        projection::Val=Val(:two_dim),
+        colorbar::Bool=true,
+        kwargs...
+    )
+
+Plot the Wigner function of a quantum state in a trajectory.
+
+# Arguments
+- `traj::NamedTrajectory`: The trajectory containing quantum states.
+- `idx::Int`: The index of the state in the trajectory to plot.
+
+# Keyword Arguments
+- `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
+- `xvec`, `yvec`: Grids for plotting the Wigner function.
+- `projection::Val`: Type of projection for visualization (`Val(:two_dim)` or `Val(:three_dim)`).
+- `colorbar::Bool`: Whether to display a colorbar.
+- `kwargs...`: Additional keyword arguments passed to the plot.
+
+# Returns
+A tuple `(fig, ax, hm, states)` where:
+- `fig`: The Makie `Figure`.
+- `ax`: The axis containing the plot.
+- `hm`: The heatmap handle.
+- `states`: The list of quantum states plotted.
+"""
+function QuantumToolbox.plot_wigner(
+    traj::NamedTrajectory,
+    idx::Int;
     state_name::Symbol = :ψ̃,
     xvec = -5:0.1:5,
     yvec = -5:0.1:5,
@@ -58,12 +98,14 @@ function PiccoloPlots.plot_wigner(
     colorbar::Bool = true,
     kwargs...
 )
+    @assert 1 ≤ idx ≤ traj.T "Invalid knot point index."
+
     iso_states = eachcol(traj[state_name])
     kets = iso_to_ket.(iso_states)
     states = QuantumObject.(kets)
 
     fig, ax, hm = QuantumToolbox.plot_wigner(
-        states[1];
+        states[idx];
         library = Val(:Makie),
         xvec = xvec,
         yvec = yvec,
@@ -78,7 +120,6 @@ end
 #============================================================================#
 
 @testitem "Test plot_bloch for Bloch sphere trajectory" begin
-    using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
     using PiccoloQuantumObjects: ket_to_iso
@@ -95,20 +136,18 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene, states = PiccoloPlots.plot_bloch(Val(:Makie), traj,)
+    fig, lscene, states = plot_bloch(traj)
 
     @test fig isa Figure
     @test lscene isa LScene
 end
 
 @testitem "Test plot_bloch for Bloch sphere trajectory with one vector arrow shown" begin
-    using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
     using PiccoloQuantumObjects: ket_to_iso
     using CairoMakie
 
-    CairoMakie.activate!()
     x = ComplexF64[1.0; 0.0]
     y = ComplexF64[0.0, 1.0]
     
@@ -119,7 +158,7 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene, states = PiccoloPlots.plot_bloch(Val(:Makie), traj, show_vector_at=[1])
+    fig, lscene, states = plot_bloch(traj, show_vector_at=[1])
 
     @test fig isa Figure
     @test lscene isa LScene
@@ -135,7 +174,10 @@ end
     T = 20
     ts = range(0, π/2; length=T)
 
-    kets = [QuantumObject(cos(θ) * [1.0 + 0im, 0.0 + 0im] + sin(θ) * [0.0 + 0im, 1.0 + 0im]) for θ in ts]
+    kets = [
+        QuantumObject(cos(θ) * [1.0 + 0im, 0.0 + 0im] + sin(θ) * [0.0 + 0im, 1.0 + 0im]) 
+        for θ in ts
+    ]
 
     iso_kets = ket_to_iso.(ψ.data for ψ in kets)
 
@@ -149,7 +191,7 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃)
+    fig, lscene = plot_bloch(traj, state_name=:ψ̃)
 
     @test isa(fig, Figure)
     @test isa(lscene, LScene)
@@ -186,14 +228,11 @@ end
 end
 
 @testitem "plot_bloch with problem-constructed trajectory" begin
-    using PiccoloPlots
     using QuantumToolbox
     using NamedTrajectories
     using PiccoloQuantumObjects
     using QuantumCollocation
     using CairoMakie
-
-    CairoMakie.activate!()
     
     T = 50
     Δt = 0.2
@@ -208,10 +247,8 @@ end
 
     solve!(prob, max_iter=100, print_level=5)
 
-
     traj = prob.trajectory
-    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃1)
-
+    fig, lscene = plot_bloch(traj, state_name=:ψ̃1)
 
     @test fig isa Figure
     @test lscene isa LScene
@@ -224,8 +261,6 @@ end
     using PiccoloQuantumObjects
     using QuantumCollocation
     using CairoMakie
-
-    CairoMakie.activate!()
     
     T = 50
     Δt = 0.2
@@ -240,7 +275,7 @@ end
     solve!(prob, max_iter=100, print_level=5)
 
     traj = prob.trajectory
-    fig, lscene = PiccoloPlots.plot_bloch(Val(:Makie), traj, state_name=:ψ̃1, show_vector_at=[1, 10])
+    fig, lscene = plot_bloch(traj, state_name=:ψ̃1, show_vector_at=[1, 10])
 
     @test fig isa Figure
     @test lscene isa LScene
@@ -260,103 +295,13 @@ end
     ψ = coherent(N, α)
 
     traj = NamedTrajectory((
-        ψ̃ = hcat(ket_to_iso(ψ.data)),
-        Δt = [1.0], 
+        ψ̃ = hcat(ket_to_iso(ψ.data)), Δt = [1.0], 
     ))
-    fig, ax, hm, _ = PiccoloPlots.plot_wigner(Val(:Makie), traj, state_name=:ψ̃)
+    fig, ax, hm, _ = plot_wigner(traj, 1, state_name=:ψ̃)
 
     @test fig isa Figure
     @test ax isa Axis
     @test hm !== nothing
 end
-
-# @testitem "plot_wigner julia logo" begin
-#     # This is a test that is copied from the QuantumToolbox.jl examples
-#     using QuantumToolbox
-#     using CairoMakie
-
-#     CairoMakie.activate!(type = "svg", pt_per_unit = 1)
-#     CairoMakie.enable_only_mime!(MIME"image/svg+xml"()) 
-#     N = 30  # Cutoff of the Hilbert space for the harmonic oscillator
-#     ρ = 2.5  # Amplitude of the coherent state
-#     θ1 = π / 2
-#     θ2 = π / 2 + 2π / 3
-#     θ3 = π / 2 + 4π / 3
-#     α1 = ρ * exp(im * θ1)
-#     α2 = ρ * exp(im * θ2)
-#     α3 = ρ * exp(im * θ3)
-#     ψ = coherent(N, α1) + coherent(N, α2) + coherent(N, α3)
-#     normalize!(ψ)
-#     xvec = range(-ρ, ρ, 500) .* 1.5
-#     yvec = xvec .+ (abs(imag(α1)) - abs(imag(α2))) / 2
-
-#     fig = Figure(size = (250, 250), figure_padding = 0)
-#     fig, ax, hm = plot_wigner(ψ, xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
-#     hidespines!(ax)
-#     hidexdecorations!(ax)
-#     hideydecorations!(ax)
-#     γ = 0.012
-
-#     a = destroy(N)
-#     H = a' * a
-#     c_ops = [sqrt(γ) * a]
-
-#     tlist = range(0, 2π, 100)
-
-#     sol = mesolve(H, ψ, tlist, c_ops, progress_bar = Val(false))
-
-#     fig = Figure(size = (250, 250), figure_padding = 0)
-#     fig, ax, hm = plot_wigner(sol.states[end], xvec = xvec, yvec = yvec, g = 2, library = Val(:Makie), location = fig[1,1])
-#     hidespines!(ax)
-#     hidexdecorations!(ax)
-#     hideydecorations!(ax)
-
-#     fig, ax, hm
-
-#     function set_color_julia(x, y, wig::T, α1, α2, α3, cmap1, cmap2, cmap3, δ) where {T}
-#         amp1 = gaussian(x, real(α1), δ) * gaussian(y, imag(α1), δ)
-#         amp2 = gaussian(x, real(α2), δ) * gaussian(y, imag(α2), δ)
-#         amp3 = gaussian(x, real(α3), δ) * gaussian(y, imag(α3), δ)
-
-#         c1 = get(cmap1, wig)
-#         c2 = get(cmap2, wig)
-#         c3 = get(cmap3, wig)
-
-#         c_tot = (amp1 * c1 + amp2 * c2 + amp3 * c3) / (amp1 + amp2 + amp3)
-
-#         wig_abs = abs(2 * (wig - 1 / 2))
-#         # We introduce some non-linearity to increase the contrast
-#         alpha = 2 * (1 / (1 + exp(-5 * wig_abs)) - 1 / 2)
-
-#         return RGBAf(c_tot.r, c_tot.g, c_tot.b, alpha)
-#     end
-
-#     wig = wigner(sol.states[end], xvec, yvec, g = 2)
-#     X, Y = meshgrid(xvec, yvec)
-#     δ = 1.25 # Smoothing parameter for the Gaussian functions
-#     julia_red = RGBAf(0.796, 0.235, 0.2, 1.0)
-#     julia_green = RGBAf(0.22, 0.596, 0.149, 1.0)
-#     julia_blue = RGBAf(0.251, 0.388, 0.847, 1.0)
-#     julia_purple = RGBAf(0.584, 0.345, 0.698, 1.0)
-#     n_repeats = 2
-
-#     cmap1 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_green, n_repeats)))
-#     cmap2 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_red, n_repeats)))
-#     cmap3 = cgrad(vcat(fill(julia_blue, n_repeats), fill(julia_purple, n_repeats)))
-
-#     vmax = maximum(wig)
-#     wig_normalized = wig ./ (vmax * 2) .+ 1 / 2
-
-#     img = set_color_julia.(X, Y, wig_normalized, α1, α2, α3, Ref(cmap1), Ref(cmap2), Ref(cmap3), δ)
-
-#     fig = Figure(size = (250, 250), figure_padding = 0, backgroundcolor = :transparent)
-#     ax = Axis(fig[1, 1], backgroundcolor = :transparent)
-#     image!(ax, img', rasterize = 1)
-#     hidespines!(ax)
-#     hidexdecorations!(ax)
-#     hideydecorations!(ax)
-#     fig
-# end
-
 
 end

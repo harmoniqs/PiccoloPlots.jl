@@ -1,4 +1,5 @@
-module PiccoloPlotsGLMakieExt
+module GLMakieExt
+
 using PiccoloPlots
 using QuantumToolbox
 using Makie
