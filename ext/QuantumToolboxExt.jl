@@ -101,6 +101,7 @@ function QuantumToolbox.plot_wigner(
         library = Val(:Makie),
         kwargs...
     )
+    colsize!(fig.layout, 1, Aspect(1, 1.0))
 
     return fig, ax, hm, states
 end
