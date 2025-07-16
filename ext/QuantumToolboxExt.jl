@@ -17,6 +17,8 @@ using TestItems
 
 Plot the trajectory of a quantum state on the Bloch sphere.
 
+TODO: Normalization is currently enforced. Convert to density matrix in all cases.
+
 # Arguments
 - `traj::NamedTrajectory`: The trajectory containing quantum states to plot.
 
@@ -33,13 +35,13 @@ A tuple `(fig, lscene, states)` where:
 function QuantumToolbox.plot_bloch(
     traj::NamedTrajectory;
     state_name::Symbol = :ψ̃,
-    show_vector_at::AbstractVector{Int}=[],
+    show_vector_at::AbstractVector{Int}=Int[],
     kwargs...
 )
-    iso_states = eachcol(traj[state_name])
-    kets = iso_to_ket.(iso_states)
-    states = QuantumObject.(kets)
-    bloch_vectors = QuantumToolbox._state_to_bloch.(states)
+    @assert state_name in traj.names
+    states = QuantumObject.(iso_to_ket.(eachcol(traj[state_name])))
+
+    bloch_vectors = [QuantumToolbox._state_to_bloch(s / norm(s)) for s in states]
 
     b = QuantumToolbox.Bloch()
     QuantumToolbox.add_points!(b, hcat(bloch_vectors...))
@@ -51,7 +53,6 @@ function QuantumToolbox.plot_bloch(
 
     fig, lscene = QuantumToolbox.render(b; kwargs...)
 
-    display(fig)
     return fig, lscene, states
 end
 
@@ -77,9 +78,6 @@ Plot the Wigner function of a quantum state in a trajectory.
 # Keyword Arguments
 - `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
 - `xvec`, `yvec`: Grids for plotting the Wigner function.
-- `projection::Val`: Type of projection for visualization (`Val(:two_dim)` or `Val(:three_dim)`).
-- `colorbar::Bool`: Whether to display a colorbar.
-- `kwargs...`: Additional keyword arguments passed to the plot.
 
 # Returns
 A tuple `(fig, ax, hm, states)` where:
@@ -92,25 +90,16 @@ function QuantumToolbox.plot_wigner(
     traj::NamedTrajectory,
     idx::Int;
     state_name::Symbol = :ψ̃,
-    xvec = -5:0.1:5,
-    yvec = -5:0.1:5,
-    projection::Val = Val(:two_dim),
-    colorbar::Bool = true,
     kwargs...
 )
     @assert 1 ≤ idx ≤ traj.T "Invalid knot point index."
 
-    iso_states = eachcol(traj[state_name])
-    kets = iso_to_ket.(iso_states)
-    states = QuantumObject.(kets)
+    states = QuantumObject.(iso_to_ket.(eachcol(traj[state_name])))
 
     fig, ax, hm = QuantumToolbox.plot_wigner(
         states[idx];
         library = Val(:Makie),
-        xvec = xvec,
-        yvec = yvec,
-        projection = projection,
-        colorbar = colorbar
+        kwargs...
     )
 
     return fig, ax, hm, states
