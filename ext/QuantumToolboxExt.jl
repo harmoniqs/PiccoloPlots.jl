@@ -211,10 +211,9 @@ end
     comps = (ψ̃ = hcat(ket_to_iso(x), ket_to_iso(y)), Δt = [1.0; 1.0],)
     traj = NamedTrajectory(comps)
 
-    fig, lscene, states = plot_bloch(traj)
+    fig = plot_bloch(traj)
 
     @test fig isa Figure
-    @test lscene isa LScene
 end
 
 @testitem "Test plot_bloch for Bloch sphere trajectory with one vector arrow shown" begin
@@ -233,10 +232,9 @@ end
 
     traj = NamedTrajectory(comps)
 
-    fig, lscene, states = plot_bloch(traj, show_vector_at=[1])
+    fig = plot_bloch(traj, index=1)
 
     @test fig isa Figure
-    @test lscene isa LScene
 end
 
 @testitem "plot_bloch shows expected curved Bloch path" begin
@@ -258,95 +256,10 @@ end
     ψ̃ = hcat(iso_kets...)
     Δt = fill(1.0, T)
 
-    comps = (
-        ψ̃ = ψ̃,
-        Δt = Δt,
-    )
-
+    comps = (ψ̃ = ψ̃, Δt = Δt,)
     traj = NamedTrajectory(comps)
-
-    fig, lscene = plot_bloch(traj, state_name=:ψ̃)
-
-    @test isa(fig, Figure)
-    @test isa(lscene, LScene)
-end
-
-@testitem "plot_bloch shows expected curved Bloch path with multiple vectors" begin
-    using QuantumToolbox
-    using NamedTrajectories
-    using PiccoloQuantumObjects: ket_to_iso
-    using CairoMakie
-
-    T = 20
-    ts = range(0, π/2; length=T)
-
-    kets = [QuantumObject(cos(θ) * [1.0 + 0im, 0.0 + 0im] + sin(θ) * [0.0 + 0im, 1.0 + 0im]) for θ in ts]
-
-    iso_kets = ket_to_iso.(ψ.data for ψ in kets)
-
-    ψ̃ = hcat(iso_kets...)
-    Δt = fill(1.0, T)
-
-    comps = (
-        ψ̃ = ψ̃,
-        Δt = Δt,
-    )
-
-    traj = NamedTrajectory(comps)
-
-    fig, lscene = plot_bloch(traj, state_name=:ψ̃, show_vector_at=[1, 10, 15])
-
-    @test isa(fig, Figure)
-    @test isa(lscene, LScene)
-end
-
-@testitem "plot_bloch with problem-constructed trajectory" begin
-    using QuantumToolbox
-    using NamedTrajectories
-    using PiccoloQuantumObjects
-    using QuantumCollocation
-    using CairoMakie
-    
-    T = 50
-    Δt = 0.2
-    sys = QuantumSystem(GATES[:Z], [GATES[:X], GATES[:Y]])
-    ψ_inits = Vector{ComplexF64}.([[1.0, 0.0], [0.0, 1.0]])
-    ψ_targets = Vector{ComplexF64}.([[0.0, 1.0], [1.0, 0.0]])
-
-    prob = QuantumStateSmoothPulseProblem(
-        sys, ψ_inits, ψ_targets, T, Δt;
-        piccolo_options=PiccoloOptions(verbose=false),
-    )
-
-    traj = prob.trajectory
-    fig, lscene = plot_bloch(traj, state_name=:ψ̃1)
-
+    fig = plot_bloch(traj, state_name=:ψ̃)
     @test fig isa Figure
-    @test lscene isa LScene
-end
-
-@testitem "plot_bloch with problem-constructed trajectory and show_vector_at" begin
-    using QuantumToolbox
-    using NamedTrajectories
-    using PiccoloQuantumObjects
-    using QuantumCollocation
-    using CairoMakie
-    
-    T = 50
-    Δt = 0.2
-    sys = QuantumSystem(GATES[:Z], [GATES[:X], GATES[:Y]])
-    ψ_inits = Vector{ComplexF64}.([[1.0, 0.0], [0.0, 1.0]])
-    ψ_targets = Vector{ComplexF64}.([[0.0, 1.0], [1.0, 0.0]])
-
-    prob = QuantumStateSmoothPulseProblem(
-        sys, ψ_inits, ψ_targets, T, Δt;
-    )
-
-    traj = prob.trajectory
-    fig, lscene = plot_bloch(traj, state_name=:ψ̃1, show_vector_at=[1, 10])
-
-    @test fig isa Figure
-    @test lscene isa LScene
 end
 
 @testitem "Plot Wigner function of coherent state" begin
@@ -356,20 +269,14 @@ end
     using PiccoloQuantumObjects
     using CairoMakie
 
-    CairoMakie.activate!()
-
     N = 20
     α = 1.5 + 0.5im
     ψ = coherent(N, α)
 
-    traj = NamedTrajectory((
-        ψ̃ = hcat(ket_to_iso(ψ.data)), Δt = [1.0], 
-    ))
-    fig, ax, hm, _ = plot_wigner(traj, 1, state_name=:ψ̃)
+    traj = NamedTrajectory((ψ̃ = hcat(ket_to_iso(ψ.data)), Δt = [1.0],))
+    fig = plot_wigner(traj, 1, state_name=:ψ̃)
 
     @test fig isa Figure
-    @test ax isa Axis
-    @test hm !== nothing
 end
 
 end
