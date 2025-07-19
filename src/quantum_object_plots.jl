@@ -3,8 +3,8 @@ module QuantumObjectPlots
 export plot_unitary_populations
 
 using LaTeXStrings
-# only need MakieCore for plot
-using MakieCore
+# only need MakieCore for plot interface
+using Makie
 using LinearAlgebra
 # using GeometryBasics
 using NamedTrajectories
