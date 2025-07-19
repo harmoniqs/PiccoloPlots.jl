@@ -3,6 +3,8 @@ module QuantumToolboxPlots
 export animate_bloch
 export animate_name
 export animate_wigner
+export plot_bloch!
+export plot_wigner!
 
 using TestItems
 
@@ -21,6 +23,7 @@ The Makie `Figure` object displaying the animation.
 """
 function animate_bloch end
 
+function plot_bloch! end
 
 """
     animate_name(traj::NamedTrajectory; state_name::Symbol=:x, fps::Int=30)
@@ -33,9 +36,7 @@ Animate the evolution of a scalar or vector-valued variable in the trajectory.
 - `fps::Int`: Frames per second for the animation. Default is `30`.
 
 # Returns
-A tuple `(fig, ax)` where:
 - `fig`: The Makie `Figure`.
-- `ax`: The axis containing the animated plot.
 """
 function animate_name end
 
@@ -66,12 +67,11 @@ Animate the evolution of the Wigner function for a quantum trajectory.
 - `kwargs...`: Additional keyword arguments passed to the plot.
 
 # Returns
-A tuple `(fig, ax, states)` where:
 - `fig`: The Makie `Figure`.
-- `ax`: The axis containing the animated Wigner plot.
-- `states`: The list of quantum states animated.
 """
 function animate_wigner end
+
+function plot_wigner! end
 
 
 end
