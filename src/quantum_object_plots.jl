@@ -3,13 +3,13 @@ module QuantumObjectPlots
 export plot_unitary_populations
 
 using LaTeXStrings
-# only need MakieCore for plot interface
-using Makie
+using MakieCore
+import MakieCore: plot
 using LinearAlgebra
-# using GeometryBasics
 using NamedTrajectories
 using PiccoloQuantumObjects
 using TestItems
+
 
 function get_layout(index::Int, n::Int)
     √n = isqrt(n) + 1

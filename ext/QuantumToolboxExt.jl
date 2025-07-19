@@ -28,6 +28,7 @@ end
 # Reduce size for correct arrow head position
 bloch_arrow(v, arrow_size) = (1 - arrow_size / norm(v)) * Vec3f(v...)
 
+
 """
     plot_bloch(
         traj::NamedTrajectory;
@@ -98,6 +99,7 @@ function QuantumToolbox.plot_bloch(
     return fig
 end
 
+
 function PiccoloPlots.plot_bloch!(
     fig::Figure,
     traj::NamedTrajectory,
@@ -116,6 +118,7 @@ function PiccoloPlots.plot_bloch!(
 
     return fig
 end
+
 
 function PiccoloPlots.animate_bloch(
     traj::NamedTrajectory;
