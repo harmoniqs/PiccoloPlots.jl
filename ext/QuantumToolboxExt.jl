@@ -8,17 +8,19 @@ using PiccoloQuantumObjects
 
 using TestItems
 
-
-function iso_to_bloch(ψ̃::AbstractVector{<:Real})
-    s = QuantumObject(iso_to_ket(ψ̃))
-    # Norm avoids Warning from QuantumToolbox
-    return QuantumToolbox._state_to_bloch(s / norm(s))
+# Transform quantum states to Bloch sphere coordinates
+ket_to_bloch(ψ::AbstractVector{<:Number}) = density_to_bloch(ψ * ψ')
+iso_to_bloch(ψ̃::AbstractVector{<:Real}) = ket_to_bloch(iso_to_ket(ψ̃))
+iso_vec_to_bloch(ρ̃⃗::AbstractVector{<:Real}) = density_to_bloch(iso_vec_to_density(ρ̃⃗))
+function density_to_bloch(ρ::AbstractMatrix{<:Number})
+    x = real(ρ[1, 2] + ρ[2, 1])
+    y = imag(ρ[2, 1] - ρ[1, 2])
+    z = real(ρ[1, 1] - ρ[2, 2])
+    return Point3f([x, y, z])
 end
 
-function bloch_arrow(v, arrow_size)
-    # Reduce size for correct arrow head position
-    return (1 - arrow_size / norm(v)) * Vec3f(v...)
-end
+# Reduce size for correct arrow head position
+bloch_arrow(v, arrow_size) = (1 - arrow_size / norm(v)) * Vec3f(v...)
 
 """
     plot_bloch(
@@ -29,13 +31,14 @@ end
 
 Plot the trajectory of a quantum state on the Bloch sphere.
 
-TODO: Convert to density matrix in all cases.
-
 # Arguments
 - `traj::NamedTrajectory`: The trajectory containing quantum states to plot.
 
 # Keyword Arguments
+- `index::Union{Nothing, Int} = nothing`: If provided, add vector at this index.
 - `state_name::Symbol`: The name of the quantum state in the trajectory. Default is `:ψ̃`.
+- `state_type::Symbol`: The type of the quantum state. Can be `:ket` or `:density`. Default is `:ket`.
+- `subspace::AbstractVector{Int}`: The subspace of the state to use. Default is the full space.
 - `kwargs...`: Additional keyword arguments passed to `QuantumToolbox.render`.
 
 # Returns
@@ -45,26 +48,40 @@ function QuantumToolbox.plot_bloch(
     traj::NamedTrajectory;
     index::Union{Nothing, Int} = nothing,
     state_name::Symbol = :ψ̃,
+    state_type::Symbol = :ket,
+    subspace::AbstractVector{Int} = 1:traj.dims[state_name],
     kwargs...
 )
-    @assert state_name in traj.names
-    bloch_vectors = iso_to_bloch.(eachcol(traj[state_name]))
-    
+    @assert state_name in traj.names "$state_name ∉ traj.names"
+    bloch_pts = map(eachcol(traj[state_name])) do s
+        if state_type == :ket
+            @assert length(subspace) == 4 "Invalid iso_ket length"
+            iso_to_bloch(s[subspace])
+        elseif state_type == :density
+            @assert length(subspace) == 8 "Invalid iso_vec_density length"
+            iso_vec_to_bloch(s[subspace])
+        else
+            raise(ArgumentError("State type must be :ket or :density."))
+        end
+    end
+
     # Render Bloch sphere
     b = QuantumToolbox.Bloch()
-    QuantumToolbox.add_points!(b, hcat(bloch_vectors...))
-
+    QuantumToolbox.add_points!(b, stack(bloch_pts))
     fig, lscene = QuantumToolbox.render(b; kwargs...)
 
+    # Add line connecting points
+    lines!(lscene, bloch_pts, color=:black)
+
     if !isnothing(index)
-        @assert 1 ≤ index ≤ length(bloch_vectors) "Invalid vector index."
+        @assert 1 ≤ index ≤ length(bloch_pts) "Invalid vector index."
 
         # Save for animation
         fig.attributes[:bloch] = b
         fig.attributes[:state_name] = state_name
-        fig.attributes[:vec] = [bloch_arrow(bloch_vectors[index], b.vector_arrowsize[3])]
+        fig.attributes[:vec] = [bloch_arrow(bloch_pts[index], b.vector_arrowsize[3])]
 
-        # Draw the saved observable
+        # Draw the saved vec observable
         arrows!(
             lscene, [Point3f(0, 0, 0)], fig.attributes[:vec],
             linewidth = b.vector_width,
@@ -96,7 +113,7 @@ end
 
 function PiccoloPlots.animate_bloch(
     traj::NamedTrajectory;
-    fps::Int=30,
+    fps::Int=24,
     mode::Symbol=:inline,
     filename="bloch_animation.mp4",
     kwargs...
@@ -167,6 +184,7 @@ function PiccoloPlots.plot_wigner!(fig::Figure, traj::NamedTrajectory, idx::Int)
     hm = fig.attributes[:hm][]
     label = fig.attributes[:label][]
 
+    # Update heatmap with new Wigner function
     state = QuantumObject(iso_to_ket(traj[idx][state_name]))
     W = transpose(wigner(state, hm[1][], hm[2][]))
     hm[3][] = W
@@ -177,7 +195,7 @@ end
 function PiccoloPlots.animate_wigner(
     traj::NamedTrajectory;
     mode=:inline, 
-    fps::Int=30,
+    fps::Int=24,
     filename="wigner_animation.mp4",
     kwargs...
 )
@@ -199,10 +217,11 @@ end
 
 #============================================================================#
 
-@testitem "Test plot_bloch for Bloch sphere trajectory" begin
+
+@testitem "Test plot_bloch for Bloch sphere ket trajectory" begin
     using QuantumToolbox
     using NamedTrajectories
-    using PiccoloQuantumObjects: ket_to_iso
+    using PiccoloQuantumObjects
     using CairoMakie
 
     x = ComplexF64[1.0; 0.0]
@@ -212,35 +231,45 @@ end
     traj = NamedTrajectory(comps)
 
     fig = plot_bloch(traj)
-
     @test fig isa Figure
+end
+
+@testitem "Test plot_bloch for Bloch sphere density trajectory" begin
+    using QuantumToolbox
+    using NamedTrajectories
+    using PiccoloQuantumObjects
+    using CairoMakie
+
+    x = ComplexF64[1.0; 0.0]
+    y = ComplexF64[0.0, 1.0]
+    ρ̃⃗ = hcat(density_to_iso_vec(x * x'), density_to_iso_vec(y * y'))
+    traj = NamedTrajectory((ρ̃⃗ = ρ̃⃗, Δt = [1.0; 1.0],))
+
+    fig = plot_bloch(traj, state_name=:ρ̃⃗, state_type=:density)
+    @test fig isa Figure
+
+    @test_throws Exception plot_bloch(traj, state_name=:ρ̃⃗, state_type=:ket)
 end
 
 @testitem "Test plot_bloch for Bloch sphere trajectory with one vector arrow shown" begin
     using QuantumToolbox
     using NamedTrajectories
-    using PiccoloQuantumObjects: ket_to_iso
+    using PiccoloQuantumObjects
     using CairoMakie
 
     x = ComplexF64[1.0; 0.0]
     y = ComplexF64[0.0, 1.0]
-    
-    comps = (
-        ψ̃ = hcat(ket_to_iso(x), ket_to_iso(y)),
-        Δt = [1.0; 1.0],
-    )
-
-    traj = NamedTrajectory(comps)
+    ψ̃ = hcat(ket_to_iso(x), ket_to_iso(y))
+    traj = NamedTrajectory((ψ̃ = ψ̃, Δt = [1.0; 1.0],))
 
     fig = plot_bloch(traj, index=1)
-
     @test fig isa Figure
 end
 
 @testitem "plot_bloch shows expected curved Bloch path" begin
     using QuantumToolbox
     using NamedTrajectories
-    using PiccoloQuantumObjects: ket_to_iso
+    using PiccoloQuantumObjects
     using CairoMakie
 
     T = 20
