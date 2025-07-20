@@ -3,13 +3,13 @@ module QuantumObjectPlots
 export plot_unitary_populations
 
 using LaTeXStrings
-# only need MakieCore for plot
 using MakieCore
+import MakieCore: plot
 using LinearAlgebra
-# using GeometryBasics
 using NamedTrajectories
 using PiccoloQuantumObjects
 using TestItems
+
 
 function get_layout(index::Int, n::Int)
     √n = isqrt(n) + 1
@@ -55,7 +55,7 @@ function plot_unitary_populations(
         L"Populations: $\left| U_{:, %$(i)}(t) \right|^2$" for i ∈ unitary_columns
     ]
     
-    MakieCore.plot(traj, [control_name];
+    plot(traj, [control_name];
         transformations=transformations,
         transformation_titles=transformation_titles,
         transformation_labels=transformation_labels,
