@@ -241,7 +241,7 @@ function PiccoloPlots.animate_wigner(
 end
 
 
-#============================================================================#
+# ============================================================================ #
 
 
 @testitem "Test plot_bloch for Bloch sphere ket trajectory" begin

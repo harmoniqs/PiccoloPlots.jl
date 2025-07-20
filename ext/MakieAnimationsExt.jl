@@ -3,7 +3,7 @@ module MakieAnimationsExt
 using PiccoloPlots
 using Makie
 using NamedTrajectories
-
+using TestItems
 
 """
     animate_figure(
@@ -32,6 +32,11 @@ function PiccoloPlots.animate_figure(
                 for i in frames
                     update_frame!(i)
                     sleep(1 / fps)
+                end
+                if !isopen(fig.scene)
+                    break # exit after close
+                else
+                    sleep(10 / fps)
                 end
             end
         end
@@ -76,13 +81,13 @@ function PiccoloPlots.animate_name(
     ylims = collect(extrema(traj[name]))
 
     scatter!(ax, xlims, ylims, markersize=0.0)
-    plot_name!(ax, traj, :a, indices=1:1, kwargs...)
+    plot_name!(ax, traj, name, indices=1:1, kwargs...)
 
     # TODO: Unclear how to set observables via indices, so redraw
     function update_frame!(i)
         empty!(ax.scene)
         scatter!(ax, xlims, ylims, markersize=0.0)
-        plot_name!(ax, traj, :a, indices=1:i)
+        plot_name!(ax, traj, name, indices=1:i)
     end
 
     return animate_figure(
@@ -95,5 +100,23 @@ function PiccoloPlots.animate_name(
     )
 end
 
+
+# ============================================================================ #
+
+@testitem "Test animate_name for NamedTrajectory" begin
+    using QuantumToolbox
+    using NamedTrajectories
+    using PiccoloQuantumObjects
+    using CairoMakie
+
+    x = ComplexF64[1.0; 0.0]
+    y = ComplexF64[0.0, 1.0]
+    
+    comps = (ψ̃ = hcat(ket_to_iso(x), ket_to_iso(y)), Δt = [1.0; 1.0],)
+    traj = NamedTrajectory(comps)
+
+    fig = animate_name(traj, :ψ̃, mode=:inline, fps=10)
+    @test fig isa Figure
+end
 
 end
