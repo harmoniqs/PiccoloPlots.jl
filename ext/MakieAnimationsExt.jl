@@ -15,7 +15,7 @@ using TestItems
         filename::String = "animation.mp4"
     )
 
-Animate a Makie figure by updating frames.
+Animate a Makie figure by updating frames. Works best with `GLMakie`.
 """
 function PiccoloPlots.animate_figure(
     fig::Figure,
@@ -27,6 +27,9 @@ function PiccoloPlots.animate_figure(
 )
     if mode == :inline
         display(fig) # open the scene
+        if !isopen(fig.scene)
+            throw(ErrorException("Unable to open :inline animation for the current backend. This is a known limitation of CairoMakie. Consider setting mode = :record."))
+        end
         @async begin # don't block
             while isopen(fig.scene)
                 for i in frames
@@ -45,7 +48,7 @@ function PiccoloPlots.animate_figure(
             update_frame!(i)
         end
     else
-        error("Unsupported mode: $mode. Use :inline or :record.")
+        throw(ArgumentError("Unsupported mode: $mode. Use :inline or :record."))
     end
 
     return fig
@@ -84,6 +87,7 @@ function PiccoloPlots.animate_name(
     plot_name!(ax, traj, name, indices=1:1, kwargs...)
 
     # TODO: Unclear how to set observables via indices, so redraw
+    # WARNING: Known bug with CairoMakie, which cannot re-render
     function update_frame!(i)
         empty!(ax.scene)
         scatter!(ax, xlims, ylims, markersize=0.0)
