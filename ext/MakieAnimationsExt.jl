@@ -22,12 +22,13 @@ function PiccoloPlots.animate_figure(
     frames::AbstractVector{Int},
     update_frame!::Function;
     mode::Symbol = :inline,
-    fps::Int = 30,
+    fps::Int = 24,
     filename::String = "animation.mp4"
 )
     if mode == :inline
-        @async begin
-            while isopen(fig)
+        display(fig) # open the scene
+        @async begin # don't block
+            while isopen(fig.scene)
                 for i in frames
                     update_frame!(i)
                     sleep(1 / fps)
