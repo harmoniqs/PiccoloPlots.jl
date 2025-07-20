@@ -28,7 +28,7 @@ function PiccoloPlots.animate_figure(
     if mode == :inline
         display(fig) # open the scene
         if !isopen(fig.scene)
-            throw(ErrorException("Unable to open :inline animation for the current backend. This is a known limitation of CairoMakie. Consider setting mode = :record."))
+            @warn "Unable to open :inline animation for the current backend. This is a known limitation of CairoMakie. Consider setting mode = :record."
         end
         @async begin # don't block
             while isopen(fig.scene)
