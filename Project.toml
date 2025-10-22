@@ -25,17 +25,17 @@ QuantumToolboxExt = ["QuantumToolbox", "Makie"]
 [compat]
 CairoMakie = "0.13"
 LaTeXStrings = "1.4"
-LinearAlgebra = "1.10, 1.11"
+LinearAlgebra = "1.10, 1.11, 1.12"
 Makie = "0.22"
 MakieCore = "0.9, 0.10"
 NamedTrajectories = "0.5"
 PiccoloQuantumObjects = "0.6"
 QuantumToolbox = "0.32"
-Random = "1.10, 1.11"
+Random = "1.10, 1.11, 1.12"
 Reexport = "1.2"
 TestItemRunner = "1.1"
 TestItems = "1.0"
-julia = "1.10, 1.11"
+julia = "1.10, 1.11, 1.12"
 
 [extras]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
