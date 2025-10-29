@@ -18,20 +18,20 @@ H_drift = PAULIS[:X]
 N = 100
 Δt = 0.1
 ts = 0:Δt:Δt*(N-1)
-A = 0.1 * randn(length(H_drives), length(ts))
+u = 0.1 * randn(length(H_drives), length(ts))
 
 # Now we will generate the unitaries
-Us = exp.(-im * [(H_drift + sum(A[:, k] .* H_drives)) * ts[k] for k = 1:N])
+Us = exp.(-im * [(H_drift + sum(u[:, k] .* H_drives)) * ts[k] for k = 1:N])
 Us[1]
 
 # And create the trajectory
 traj = NamedTrajectory(
     (
-        Ũ⃗ = hcat(operator_to_iso_vec.(Us)...), # here we store the isomorphisms
-        a = A,
-        Δt = ts
+        Ũ⃗ = hcat(operator_to_iso_vec.(Us)...), # here we store the isomorphisms
+        u = u,
+        Δt = fill(Δt, N)
     );
-    controls = :a,
+    controls = :u,
     timestep = :Δt
 )
 

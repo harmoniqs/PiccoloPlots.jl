@@ -106,7 +106,7 @@ function PiccoloPlots.plot_bloch!(
     idx::Int;
     kwargs...
 )
-    @assert 1 ≤ idx ≤ traj.T "Invalid knot point index."
+    @assert 1 ≤ idx ≤ traj.N "Invalid knot point index."
 
     if haskey(fig.attributes, :vec)
         b = fig.attributes[:bloch][]
@@ -131,7 +131,7 @@ function PiccoloPlots.animate_bloch(
 
     return animate_figure(
         fig,
-        1:traj.T,
+        1:traj.N,
         i -> plot_bloch!(fig, traj, i; kwargs...),
         mode=mode,
         fps=fps,
@@ -172,7 +172,7 @@ function QuantumToolbox.plot_wigner(
     state_type::Symbol = :ket,
     kwargs...
 )
-    @assert 1 ≤ idx ≤ traj.T "Invalid knot point index."
+    @assert 1 ≤ idx ≤ traj.N "Invalid knot point index."
 
     state = if state_type == :ket
         QuantumObject(iso_to_ket(traj[idx][state_name]))
@@ -196,7 +196,7 @@ function QuantumToolbox.plot_wigner(
 end
 
 function PiccoloPlots.plot_wigner!(fig::Figure, traj::NamedTrajectory, idx::Int)
-    @assert 1 ≤ idx ≤ traj.T "Invalid knot point index."
+    @assert 1 ≤ idx ≤ traj.N "Invalid knot point index."
 
     # Extract attributes from the figure
     state_name = fig.attributes[:state_name][]
@@ -230,7 +230,7 @@ function PiccoloPlots.animate_wigner(
 
     animate_figure(
         fig,
-        1:traj.T,
+        1:traj.N,
         i -> plot_wigner!(fig, traj, i),
         mode=mode,
         fps=fps,

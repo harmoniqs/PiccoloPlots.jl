@@ -96,7 +96,7 @@ function PiccoloPlots.animate_name(
 
     return animate_figure(
         fig,
-        1:traj.T,
+        1:traj.N,
         update_frame!,
         mode=mode,
         fps=fps,

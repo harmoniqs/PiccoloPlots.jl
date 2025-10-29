@@ -71,7 +71,7 @@ using NamedTrajectories
 using PiccoloQuantumObjects
 using PiccoloPlots
 
-# Define the Hamiltonian H = X + a_1(t)Z + a_2(t)Y
+# Define the Hamiltonian H = X + u_1(t)Z + u_2(t)Y
 H_drift = PAULIS[:X]
 H_drives = [PAULIS[:Z], PAULIS[:Y]]
 
@@ -81,24 +81,25 @@ N = 100
 Δt = 0.1
 ts = collect(0:Δt:Δt*(N-1))
 
-a = 0.1 * randn(length(H_drives), length(ts))
+u = 0.1 * randn(length(H_drives), length(ts))
 
 # Generate the unitaries
-Us = exp.(-im * [(H_drift + sum(a[:, k] .* H_drives)) * ts[k] for k = 1:N])
+Us = exp.(-im * [(H_drift + sum(u[:, k] .* H_drives)) * ts[k] for k = 1:N])
 
 # Create a NamedTrajectory
 traj = NamedTrajectory(
     (
-        Ũ⃗ = hcat(operator_to_iso_vec.(Us)...),
-        a = a,
-        Δt = ts,
+        Ũ⃗ = hcat(operator_to_iso_vec.(Us)...),
+        u = u,
+        Δt = fill(Δt, N),
     );
-    controls = :a,
+    controls = :u,
     timestep = :Δt,
 )
 
 # Plot the populations of the first and second qubits
 plot_unitary_populations(traj)
+```
 ```
 
 ![](assets/unitary_populations.png)
