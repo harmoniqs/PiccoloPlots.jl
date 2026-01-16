@@ -1,6 +1,6 @@
 name = "PiccoloPlots"
 uuid = "f42a522c-b487-4f73-ad5a-ad0c3e4a12c8"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Aaron Trowbridge <aaron.j.trowbridge@gmail.com> and contributors"]
 
 [deps]
