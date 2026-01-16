@@ -85,13 +85,14 @@ function QuantumToolbox.plot_bloch(
         fig.attributes[:bloch] = b
         fig.attributes[:state_name] = state_name
         fig.attributes[:subspace] = subspace
-        fig.attributes[:vec] = [bloch_arrow(bloch_pts[index], b.vector_arrowsize[3])]
+        fig.attributes[:vec] = [bloch_arrow(bloch_pts[index], b.vector_tiplength)]
 
         # Draw the saved vec observable
-        arrows!(
+        arrows3d!(
             lscene, [Point3f(0, 0, 0)], fig.attributes[:vec],
-            linewidth = b.vector_width,
-            arrowsize = Vec3f(b.vector_arrowsize...),
+            shaftradius = b.vector_width,
+            tiplength = b.vector_tiplength,
+            tipradius = b.vector_tipradius,
             rasterize = 3,
         )
     end
@@ -113,7 +114,7 @@ function PiccoloPlots.plot_bloch!(
         state_name = fig.attributes[:state_name][]
         subspace = fig.attributes[:subspace][]
         v = iso_to_bloch(traj[idx][state_name], subspace)
-        fig.attributes[:vec] = [bloch_arrow(v, b.vector_arrowsize[3])]
+        fig.attributes[:vec] = [bloch_arrow(v, b.b.vector_tiplength)]
     end
 
     return fig
