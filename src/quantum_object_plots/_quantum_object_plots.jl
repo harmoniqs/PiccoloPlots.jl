@@ -4,8 +4,8 @@ export plot_unitary_populations
 export plot_state_populations
 
 using LaTeXStrings
-using MakieCore
-import MakieCore: plot
+using Makie
+import Makie: plot
 using LinearAlgebra
 using NamedTrajectories
 using PiccoloQuantumObjects
