@@ -2,6 +2,10 @@ module PiccoloPlots
 
 using Reexport
 
+# Ensure plotting dependencies are loaded
+@reexport using NamedTrajectories: plot
+using CairoMakie
+
 include("animated_plots.jl")
 @reexport using .AnimatedPlots
 
